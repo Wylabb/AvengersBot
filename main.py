@@ -42,7 +42,7 @@ def json_load_st():
 
 def json_save_hd():
     with open('hands.json', 'w') as fp:
-        json.dump(st, fp)
+        json.dump(hd, fp)
 
 
 def json_load_hd():
@@ -165,8 +165,9 @@ def storage_amount(m, ):
 def take_cb(m, ):
     del_model(m)
     line = list(st.keys())
-    print(line)
     msg = bot.reply_to(m, 'Введите название модели \n' + genlist(line))
+    hd[get_user_id(m)] = {}
+    json_save_hd()
     bot.register_next_step_handler(msg, model)
 
 
@@ -185,7 +186,8 @@ def model(m, ):
     edit_cache(m, line[int(get_cache(m)) - 1])
     line = list(st[get_cache(m)].keys())
     msg = bot.reply_to(m, 'введите номер вкуса\n' + genlist(line))
-
+    hd[get_user_id(m)][get_cache(m)] = {}
+    json_save_hd()
     bot.register_next_step_handler(msg, flavours)
 
 
@@ -193,7 +195,6 @@ def flavours(m, ):
     create_cache1(m)
     edit_cache1(m, m.text)
     line = list(st[get_cache(m)].keys())
-    print(line)
     if (get_cache1(m).isdigit() is False) or (int(get_cache1(m)) > len(line)) or (int(get_cache1(m)) == 0):
         bot.reply_to(m, 'Неправильный номер вкуса')
         del_cache(m)
@@ -203,13 +204,13 @@ def flavours(m, ):
 
     edit_model(m, line[int(get_cache1(m)) - 1])
     edit_cache1(m, line[int(get_cache1(m)) - 1])
-
+    hd[get_user_id(m)][get_cache(m)][get_cache1(m)] = {}
+    json_save_hd()
     msg = bot.reply_to(m, 'Введите колличество взятых одноразок:')
     bot.register_next_step_handler(msg, amount)
 
 
 def amount(m, ):
-    print(get_cache(m), get_cache1(m), get_model(m))
     Model = get_cache(m)
     Flavour = get_cache1(m)
     edit_cache(m, m.text)
@@ -233,13 +234,15 @@ def amount(m, ):
         st[Model][Flavour] -= int(get_cache(m))
         json_save_st()
 
-    user_id_ = 'hands_' + get_user_id(m) + '_'
-    user_id_model = user_id_ + get_model(m)
-    if search(user_id_model) == 1:
-        add(user_id_model, get_cache(m))
-    else:
-        create(user_id_model)
-        edit(user_id_model, get_cache(m))
+    hd[get_user_id(m)][Model][Flavour] = int(get_cache(m))
+    json_save_hd()
+    # user_id_ = 'hands_' + get_user_id(m) + '_'
+    # user_id_model = user_id_ + get_model(m)
+    # if search(user_id_model) == 1:
+    #     add(user_id_model, get_cache(m))
+    # else:
+    #     create(user_id_model)
+    #     edit(user_id_model, get_cache(m))
 
     bot.reply_to(m, 'вы взяли ' + get_cache(m) + ' одноразок на руки!')
 
