@@ -80,7 +80,7 @@ def kiwi_cm(m, ):
 
 
 @bot.message_handler(commands=["info"])
-def info_cm(m, ):
+def info_cm(m, ): #TODO: переписать info под json
     user_id = get_user_id(m)
     word = 'hands_' + user_id
     inventory = geninfo(deepsearch(word))
@@ -247,6 +247,9 @@ def amount(m, ):
     if st[Model][Flavour] == int(get_cache(m)):
         del st[Model][Flavour]
         json_save_st()
+        if st[Model] == {}:
+            del st[Model]
+            json_save_st()
     elif st[Model][Flavour] < int(get_cache(m)):
         bot.reply_to(m, 'Вы просите больше, чем есть на складе!')
         del_cache(m)
