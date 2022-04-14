@@ -1,0 +1,1 @@
+hands_239824268_QA4000_Strawberry_ = 1

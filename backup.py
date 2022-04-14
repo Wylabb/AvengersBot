@@ -1,4 +1,0 @@
-
-hands_393178928_QA4000_Apple_ = 95
-sell_393178928_QA4000_Apple_ = 5
-money_393178928_QA4000_Apple_ = 6000
