@@ -17,7 +17,7 @@ def genlist(line):
     c = '\n'
     for i in range(len(line)):
         k = i + 1
-        c += str(k) + '. ' + line[i][:-1] + '\n'
+        c += str(k) + '. ' + line[i] + '\n'
     return c
 
 
@@ -26,7 +26,7 @@ def geninfo(line):
     for i in range(len(line)):
         line[i] = line[i].replace('_', ' ')
         k = i + 1
-        c += str(k) + '. ' + line[i][16:] + '\n'
+        c += str(k) + '. ' + line[i][15:] + '\n /\n'
     return c
 
 

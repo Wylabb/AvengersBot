@@ -98,10 +98,10 @@ def create_dict(m, ):
         globals()[dict_f(m)] = {'Model': [], 'Flavours': []}
 
 
-def edit_dict(m, value, key, ):
-    dict_n = dict_f(m)
-    inf = "'" + value + "'"
-    exec(dict_n + "['" + key + "'].append(" + str(inf) + ")", globals())
+# def edit_dict(m, value, key, ):
+#     dict_n = dict_f(m)
+#     inf = "'" + value + "'"
+#     exec(dict_n + "['" + key + "'].append(" + str(inf) + ")", globals())
 
 
 def get_dict(m, ):
