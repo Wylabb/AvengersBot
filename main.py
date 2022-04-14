@@ -8,6 +8,7 @@ import telebot
 from AvengersModule import get_user_id, create_cache, edit_cache, get_cache, del_cache, create_cache1, edit_cache1, \
     get_cache1, del_cache1, create_model, edit_model, edit_model_sell, get_model, del_model, create_dict, edit_dict, \
     get_dict, del_dict
+from FunctionsModule import backup, genlist, geninfo, gensell, search, deepsearch, getvalue, create, edit, add, delite
 
 global st
 global d
@@ -43,115 +44,6 @@ def json_load_st():
 
 json_load_d()
 json_load_st()
-
-
-"""ОБЩИЕ ФУНКЦИИ"""
-
-
-def backup():
-    f = open('id.py')
-    data = f.read()
-    f.close()
-    f = open('backup.py', 'w')
-    f.write(data)
-    f.close()
-
-
-def genlist(line):
-    c = '\n'
-    for i in range(len(line)):
-        k = i + 1
-        c += str(k) + '. ' + line[i][:-1] + '\n'
-    return c
-
-
-def geninfo(line):
-    c = '\n'
-    for i in range(len(line)):
-        line[i] = line[i].replace('_', ' ')
-        k = i + 1
-        c += str(k) + '. ' + line[i][16:] + '\n'
-    return c
-
-
-def gensell(line):
-    c = '\n'
-    for i in range(len(line)):
-        line[i] = line[i].replace('_', ' ')
-        k = i + 1
-        c += str(k) + '. ' + line[i] + '\n'
-    return c
-
-
-def search(line):
-    importlib.reload(id)
-    if hasattr(id, str(line)):
-        return 1
-    else:
-        return 0
-
-
-def deepsearch(word):
-    deeplist = [line for line in open('id.py') if word in line]
-    for i in range(len(deeplist)):
-        deeplist[i] = deeplist[i][:-1]
-    if deeplist:
-        return deeplist
-    else:
-        return ['________________Пусто_']
-
-
-def getvalue(word):
-    reload(id)
-    var = list(word.split(sep=' '))
-    var = str(var[-1])
-    return int(var)
-
-
-def create(line):
-    f = open('id.py', 'a+')
-    line = line + ' = 0\n'
-    f.write(line)
-    f.close()
-    reload(id)
-
-
-def edit(line, newvalue):
-    f = open('id.py')
-    data = f.read()
-    oldvalue = getattr(id, line)
-    data = data.replace(line + ' = ' + str(oldvalue), line + ' = ' + str(newvalue))
-    f.close()
-    f = open('id.py', 'w')
-    f.write(data)
-    f.close()
-
-
-def add(line, change):
-    reload(id)
-    f = open('id.py')
-    data = f.read()
-
-    oldvalue = getattr(id, line)
-    newvalue = oldvalue + int(change)
-    data = data.replace(line + ' = ' + str(oldvalue), line + ' = ' + str(newvalue))
-    f.close()
-    f = open('id.py', 'w')
-    f.write(data)
-    f.close()
-
-
-def delite(line):
-    f = open('id.py')
-    data = f.read()
-    oldvalue = getattr(id, line)
-    data = data.replace(line + ' = ' + str(oldvalue), '')
-    f.close()
-
-    f = open('id.py', 'w')
-    f.write(data)
-    f.close()
-
 
 """Команды!!!!"""
 
