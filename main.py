@@ -334,10 +334,6 @@ def s_amount(m, ):
     if int(getattr(id, user_id_model)) == int(get_cache(m)):
         bot.reply_to(m, 'Вы  продали все одноразки этой модели с рук! Сколько вы получили?')
         delite(user_id_model)
-        with open('id.py', 'rw') as file:
-            for line in file:
-                if not line.isspace():
-                    file.write(line)
         reload(id)
     elif int(getattr(id, user_id_model)) < int(get_cache(m)):
         bot.reply_to(m, 'У вас нет столько одноразок этой модели')

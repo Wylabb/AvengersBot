@@ -110,3 +110,7 @@ def delite(line):
     f = open('id.py', 'w')
     f.write(data)
     f.close()
+    with open('id.py', 'rw') as file:
+        for line in file:
+            if not line.isspace():
+                file.write(line)
