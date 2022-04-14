@@ -12,6 +12,7 @@ from bot_password import bot
 
 global st
 global d
+global hd
 importlib.reload(id)
 
 """СЛОВАРЬ СТОРЕДЖ И ДИКТ"""
@@ -39,8 +40,20 @@ def json_load_st():
         st = json.load(fp)
 
 
+def json_save_hd():
+    with open('hands.json', 'w') as fp:
+        json.dump(st, fp)
+
+
+def json_load_hd():
+    global hd
+    with open('hands.json', 'r') as fp:
+        hd = json.load(fp)
+
+
 json_load_d()
 json_load_st()
+json_load_hd()
 
 """Команды!!!!"""
 
@@ -319,7 +332,7 @@ def s_amount(m, ):
         return
 
     if int(getattr(id, user_id_model)) == int(get_cache(m)):
-        msg = bot.reply_to(m, 'Вы  продали все одноразки этой модели с рук! Сколько вы получили?')
+        bot.reply_to(m, 'Вы  продали все одноразки этой модели с рук! Сколько вы получили?')
         delite(user_id_model)
         reload(id)
     elif int(getattr(id, user_id_model)) < int(get_cache(m)):
