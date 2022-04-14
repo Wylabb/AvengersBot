@@ -66,7 +66,6 @@ def create_model(m, ):
 
 
 def edit_model(m, value, ):
-    global d
     model_n = model_f(m)
     inf = "'" + value + "'"
     exec(model_n + ' += ' + str(inf), globals())
@@ -100,7 +99,6 @@ def create_dict(m, ):
 
 
 def edit_dict(m, value, key, ):
-    global d
     dict_n = dict_f(m)
     inf = "'" + value + "'"
     exec(dict_n + "['" + key + "'].append(" + str(inf) + ")", globals())
