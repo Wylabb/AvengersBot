@@ -60,24 +60,7 @@ json_load_hd()
 
 @bot.message_handler(commands=["start"])
 def start_cm(m, ):
-    user_id = str(m.from_user.id)
-    line = 'id_' + user_id
-    change = ' = ' + user_id + '\n'
-    f = open('id.py', 'a+')
-    if search(line) == 0:
-        f.write(line + change)
-        bot.send_message(m.chat.id, 'Отлично, добро пожаловать!')
-    else:
-        bot.send_message(m.chat.id, 'Вы уже являетесь пользователем бота')
-    f.close()
-
-
-@bot.message_handler(commands=["kiwi"])
-def kiwi_cm(m, ):
-    kiwi_str = '/info - выведет вашу личную статистику \n/take - взять одноразки на руки \n/sell - если продали ' \
-               'одноразку \n/stats - обшая статистика \n '
-    bot.send_message(m.chat.id, kiwi_str)
-
+    bot.send_message(m.chat.id, 'Отлично, добро пожаловать!')
 
 @bot.message_handler(commands=["info"])
 def info_cm(m, ):
@@ -91,7 +74,7 @@ def info_cm(m, ):
     count_m = 0
     for i in range(len(deepsearch(money))):
         count_m += getvalue(deepsearch(money)[i])
-    bot.send_message(m.chat.id, 'Вы продали: \n' + inventory + '\nВсего: ' + str(count)+ 'шт.\nВсего выручки: '+str(count_m))
+    bot.send_message(m.chat.id, 'Вы продали: \n' + inventory + '\n💹 Всего: ' + str(count)+ 'шт.\n💰 Всего выручки: '+str(count_m))
     hand_cm(m)
 
 @bot.message_handler(commands=["hand"])
@@ -102,7 +85,7 @@ def hand_cm(m, ):
         if hd[get_user_id(m)] == {}:
             return
     except KeyError:
-        bot.send_message(m.chat.id, 'Вы броук.\nНа руках 0 шт.')
+        bot.send_message(m.chat.id, 'Вы броук.\n🙌 На руках 0 шт.')
         return
 
     for model in list(hd[get_user_id(m)].keys()):
@@ -111,15 +94,69 @@ def hand_cm(m, ):
             count += val
             line = model+flavour+str(val)
             cock.append(line)
-    bot.send_message(m.chat.id,'У вас на руках:\n'+genhands(cock) +'\n Всего на руках: '+str(count)+' шт.')
+    bot.send_message(m.chat.id,'У вас на руках:\n'+genhands(cock) +'\n🙌 Всего на руках: '+str(count)+' шт.')
 @bot.message_handler(commands=["stats"])
 def stats_cm(m, ):
-    user_id = get_user_id(m)
-    word = 'hands_' + user_id
-    bot.send_message(m.chat.id, gensell(deepsearch(word)))
+    hands = 0
+    storage = 0
+    h_line = ''
+    st_line = ''
 
+    if hd == {}:
+        h_line = 'Все ручки пусты!'
+    else:
+        for id in list(hd.keys()):
+            for model in list(hd[id].keys()):
+                for flavour in list(hd[id][model].keys()):
+                    val = hd[id][model][flavour]
+                    hands += val
+        h_line = '🙌Всего на руках: ' + str(hands) + ' шт.\n'
+
+
+    if st == {}:
+        st_line = 'На складе ничего нет!'
+    else:
+        for model in list(st.keys()):
+            for flavour in list(st[model].keys()):
+                val1 = st[model][flavour]
+                storage += val1
+        st_line =  '🖊️Всего на складе: ' + str(storage) + ' шт.\n'
+
+    user_id = get_user_id(m)
+    word = 'sell_'
+    count = 0
+    for i in range(len(deepsearch(word))):
+        count += getvalue(deepsearch(word)[i])
+    money = 'money_'
+    count_m = 0
+    for i in range(len(deepsearch(money))):
+        count_m += getvalue(deepsearch(money)[i])
+    m_line = '\n💹 Всего продано: ' + str(count) + 'шт.\n\n💰 Всего выручки: ' + str(count_m)
+
+    bot.send_message(m.chat.id,st_line+'\n'+h_line+m_line)
 
 @bot.message_handler(commands=["storage"])
+def storage_cm(m, ):
+    cock = []
+    count = 0
+    try:
+        if st == {}:
+            bot.send_message(m.chat.id, 'На складе ничего нет!')
+            return
+    except KeyError:
+        bot.send_message(m.chat.id, 'На складе ничего нет!')
+        return
+
+    for model in list(st.keys()):
+        for flavour in list(st[model].keys()):
+            val = st[model][flavour]
+            count += val
+            line = model+flavour+str(val)
+            cock.append(line)
+    bot.send_message(m.chat.id,'Сейчас на складе:\n'+genhands(cock) +'\n 🖊️ Всего: '+str(count)+' шт.')
+
+
+@bot.message_handler(commands=["getcache"])
 def storage_cb(m, ):
     del_model(m)
 
@@ -194,16 +231,17 @@ def storage_amount(m, ):
 
 @bot.message_handler(commands=["take"])
 def take_cb(m, ):
+    storage_cm(m)
     del_model(m)
     line = list(st.keys())
     msg = bot.reply_to(m, 'Введите название модели \n' + genlist(line))
-    bot.register_next_step_handler(msg, model)
     try:
         if hd[get_user_id(m)] is dict:
             pass
     except KeyError:
         hd[get_user_id(m)] = {}
         json_save_hd()
+    bot.register_next_step_handler(msg, model)
 
 def model(m, ):
     create_cache(m)
@@ -214,6 +252,7 @@ def model(m, ):
         bot.reply_to(m, 'Неправильный номер модели')
         del_cache(m)
         del_model(m)
+        del st[get_cache(m)]
         return
 
     edit_model(m, line[int(get_cache(m)) - 1])
@@ -240,6 +279,7 @@ def flavours(m, ):
         del_cache(m)
         del_cache1(m)
         del_model(m)
+        del st[get_cache(m)][get_cache(m)]
         return
 
     edit_model(m, line[int(get_cache1(m)) - 1])
@@ -260,11 +300,11 @@ def amount(m, ):
     Flavour = get_cache1(m)
     edit_cache(m, m.text)
     if get_cache(m).isdigit() is False or (int(get_cache(m)) == 0):
-        bot.reply_to(m, 'Неправильное число:')
+        msg = bot.reply_to(m, 'Неправильное число, повторите')
         del_cache(m)
         del_cache1(m)
         del_model(m)
-        return
+        del st[get_cache(m)][Model][Flavour]
 
     if st[Model][Flavour] == int(get_cache(m)):
         del st[Model][Flavour]
@@ -427,7 +467,7 @@ def s_money(m, ):
         edit(user_id_money_model, get_cache(m))
         del_model(m)
 
-    bot.reply_to(m, 'Вы пополнили казну мстителей на ' + get_cache(m) + 'руб. Поздравляем!')
+    bot.reply_to(m, '💰 Вы пополнили казну мстителей на ' + get_cache(m) + 'руб. Поздравляем!')
 
 
 backup()

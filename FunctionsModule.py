@@ -42,8 +42,7 @@ def genhands(line):
     c = '\n'
     for i in range(len(line)):
         line[i] = line[i].replace('_', ' ')
-        k = i + 1
-        c += str(k) + '. ' + line[i] + ' шт.\n'
+        c += '💨️' +line[i] + ' шт.\n'
     return c
 
 
