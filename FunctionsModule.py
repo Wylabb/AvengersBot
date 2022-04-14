@@ -48,11 +48,11 @@ def search(line):
 
 
 def deepsearch(word):
-    list = [line for line in open('id.py') if word in line]
-    for i in range(len(list)):
-        list[i] = list[i][:-1]
-    if list != []:
-        return list
+    deeplist = [line for line in open('id.py') if word in line]
+    for i in range(len(deeplist)):
+        deeplist[i] = deeplist[i][:-1]
+    if deeplist:
+        return deeplist
     else:
         return ['________________Пусто_']
 
@@ -110,3 +110,7 @@ def delite(line):
     f = open('id.py', 'w')
     f.write(data)
     f.close()
+    with open('id.py', 'rw') as file:
+        for line in file:
+            if not line.isspace():
+                file.write(line)
