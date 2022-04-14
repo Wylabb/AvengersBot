@@ -3,18 +3,16 @@ from importlib import reload
 
 import id
 import json
-import telebot
 
 from AvengersModule import get_user_id, create_cache, edit_cache, get_cache, del_cache, create_cache1, edit_cache1, \
     get_cache1, del_cache1, create_model, edit_model, edit_model_sell, get_model, del_model, create_dict, edit_dict, \
     get_dict, del_dict
 from FunctionsModule import backup, genlist, geninfo, gensell, search, deepsearch, getvalue, create, edit, add, delite
+from bot_password import bot
 
 global st
 global d
 importlib.reload(id)
-
-bot = telebot.TeleBot('5293957385:AAGXrcOkHhcgQXGXkMzitKUcDUI4jDPcd-o')
 
 """СЛОВАРЬ СТОРЕДЖ И ДИКТ"""
 
