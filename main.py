@@ -16,8 +16,6 @@ importlib.reload(id)
 
 bot = telebot.TeleBot('5293957385:AAGXrcOkHhcgQXGXkMzitKUcDUI4jDPcd-o')
 
-
-
 """СЛОВАРЬ СТОРЕДЖ И ДИКТ"""
 
 
@@ -41,6 +39,7 @@ def json_load_st():
     global st
     with open('storage.json', 'r') as fp:
         st = json.load(fp)
+
 
 json_load_d()
 json_load_st()
