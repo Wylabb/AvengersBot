@@ -313,12 +313,13 @@ def s_amount(m, ):
 
     user_id_ = 'hands_' + get_user_id(m) + '_'
     user_id_model = user_id_ + get_model(m)
+    importlib.reload(id)
     if search(user_id_model) == 0:
         bot.reply_to(m, 'У вас нет этой модели с таким вкусом')
         return
 
     if int(getattr(id, user_id_model)) == int(get_cache(m)):
-        bot.reply_to(m, 'Вы  продали все одноразки этой модели с рук! Сколько вы получили?')
+        msg = bot.reply_to(m, 'Вы  продали все одноразки этой модели с рук! Сколько вы получили?')
         delite(user_id_model)
         reload(id)
     elif int(getattr(id, user_id_model)) < int(get_cache(m)):
@@ -326,18 +327,18 @@ def s_amount(m, ):
         return
     else:
         add(user_id_model, -int(get_cache(m)))
-        msg = bot.reply_to(m, 'Сколько вы получили с ' + get_cache(m) + ' одноразок этой модели?')
+    msg = bot.reply_to(m, 'Сколько вы получили с ' + get_cache(m) + ' одноразок этой модели?')
 
-        user_id_sell = 'sell_' + get_user_id(m) + '_'
-        user_id_sell_model = user_id_sell + get_model(m)
+    user_id_sell = 'sell_' + get_user_id(m) + '_'
+    user_id_sell_model = user_id_sell + get_model(m)
 
-        if search(user_id_sell_model) == 1:
-            add(user_id_sell_model, get_cache(m))
-        else:
-            create(user_id_sell_model)
-            edit(user_id_sell_model, get_cache(m))
+    if search(user_id_sell_model) == 1:
+        add(user_id_sell_model, get_cache(m))
+    else:
+        create(user_id_sell_model)
+        edit(user_id_sell_model, get_cache(m))
 
-        bot.register_next_step_handler(msg, s_money)
+    bot.register_next_step_handler(msg, s_money)
 
 
 def s_money(m, ):

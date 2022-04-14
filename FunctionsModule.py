@@ -48,20 +48,23 @@ def search(line):
 
 
 def deepsearch(word):
-    deeplist = [line for line in open('id.py') if word in line]
-    for i in range(len(deeplist)):
-        deeplist[i] = deeplist[i][:-1]
-    if deeplist:
-        return deeplist
+    list = [line for line in open('id.py') if word in line]
+    for i in range(len(list)):
+        list[i] = list[i][:-1]
+    if list != []:
+        return list
     else:
         return ['________________Пусто_']
 
 
 def getvalue(word):
-    reload(id)
-    var = list(word.split(sep=' '))
-    var = str(var[-1])
-    return int(var)
+    if word == '________________Пусто_':
+        return 0
+    else:
+        reload(id)
+        var = list(word.split(sep=' '))
+        var = str(var[-1])
+        return int(var)
 
 
 def create(line):
