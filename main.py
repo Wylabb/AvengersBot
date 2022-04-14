@@ -166,10 +166,13 @@ def take_cb(m, ):
     del_model(m)
     line = list(st.keys())
     msg = bot.reply_to(m, 'Введите название модели \n' + genlist(line))
-    hd[get_user_id(m)] = {}
-    json_save_hd()
     bot.register_next_step_handler(msg, model)
-
+    try:
+        if hd[get_user_id(m)] is dict:
+            pass
+    except KeyError:
+        hd[get_user_id(m)] = {}
+        json_save_hd()
 
 def model(m, ):
     create_cache(m)
@@ -186,8 +189,14 @@ def model(m, ):
     edit_cache(m, line[int(get_cache(m)) - 1])
     line = list(st[get_cache(m)].keys())
     msg = bot.reply_to(m, 'введите номер вкуса\n' + genlist(line))
-    hd[get_user_id(m)][get_cache(m)] = {}
-    json_save_hd()
+
+    try:
+        if hd[get_user_id(m)][get_cache(m)] is dict:
+            pass
+    except KeyError:
+        hd[get_user_id(m)][get_cache(m)] = {}
+        json_save_hd()
+
     bot.register_next_step_handler(msg, flavours)
 
 
@@ -204,8 +213,13 @@ def flavours(m, ):
 
     edit_model(m, line[int(get_cache1(m)) - 1])
     edit_cache1(m, line[int(get_cache1(m)) - 1])
-    hd[get_user_id(m)][get_cache(m)][get_cache1(m)] = {}
-    json_save_hd()
+
+    try:
+        if hd[get_user_id(m)][get_cache(m)][get_cache1(m)] is dict:
+            pass
+    except KeyError:
+        hd[get_user_id(m)][get_cache(m)][get_cache1(m)] = 0
+        json_save_hd()
     msg = bot.reply_to(m, 'Введите колличество взятых одноразок:')
     bot.register_next_step_handler(msg, amount)
 
@@ -234,7 +248,7 @@ def amount(m, ):
         st[Model][Flavour] -= int(get_cache(m))
         json_save_st()
 
-    hd[get_user_id(m)][Model][Flavour] = int(get_cache(m))
+    hd[get_user_id(m)][Model][Flavour] = hd[get_user_id(m)][Model][Flavour] + int(get_cache(m))
     json_save_hd()
     # user_id_ = 'hands_' + get_user_id(m) + '_'
     # user_id_model = user_id_ + get_model(m)
@@ -253,27 +267,23 @@ def sell_cb(m, ):
     del_dict(m)
     create_dict(m)
 
-    user_id = get_user_id(m)
-    hands = 'hands_' + user_id
-    info = deepsearch(hands)
-    s = []
+    line = list(hd[get_user_id(m)].keys())
 
-    for i in range(len(info)):
-        c = info[i].split(sep='_')
-        for j in range(2, len(c) - 1):
-            s.append(c[j])
-    s = list(set(s))
-    for i in range(len(s)):
-        if s[i] in str(d.get('Model')):
-            edit_dict(m, s[i], 'Model')
-        if s[i] in str(d.get('Flavours')):
-            edit_dict(m, s[i], 'Flavours')
-
-    s_brand(m)
-
-
-def s_brand(m, ):
-    line = get_dict(m).get('Model')
+    # user_id = get_user_id(m)
+    # hands = 'hands_' + user_id
+    # info = deepsearch(hands)
+    # s = []
+    #
+    # for i in range(len(info)):
+    #     c = info[i].split(sep='_')
+    #     for j in range(2, len(c) - 1):
+    #         s.append(c[j])
+    # s = list(set(s))
+    # for i in range(len(s)):
+    #     if s[i] in str(d.get('Model')):
+    #         edit_dict(m, s[i], 'Model')
+    #     if s[i] in str(d.get('Flavours')):
+    #         edit_dict(m, s[i], 'Flavours')
     msg = bot.reply_to(m, 'Введите название модели: \n' + gensell(line))
 
     create_model(m)
