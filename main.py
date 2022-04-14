@@ -7,7 +7,7 @@ import json
 from AvengersModule import get_user_id, create_cache, edit_cache, get_cache, del_cache, create_cache1, edit_cache1, \
     get_cache1, del_cache1, create_model, edit_model, edit_model_sell, get_model, del_model, create_dict, edit_dict, \
     get_dict, del_dict
-from FunctionsModule import backup, genlist, geninfo, gensell, search, deepsearch, getvalue, create, edit, add, delite
+from FunctionsModule import backup, genlist, geninfo, gensell,genhands, search, deepsearch, getvalue, create, edit, add, delite
 from bot_password import bot
 
 global st
@@ -80,21 +80,43 @@ def kiwi_cm(m, ):
 
 
 @bot.message_handler(commands=["info"])
-def info_cm(m, ): #TODO: переписать info под json
+def info_cm(m, ):
     user_id = get_user_id(m)
-    word = 'hands_' + user_id
+    word = 'sell_' + user_id
     inventory = geninfo(deepsearch(word))
     count = 0
     for i in range(len(deepsearch(word))):
         count += getvalue(deepsearch(word)[i])
-    bot.send_message(m.chat.id, 'Все, что у вас на руках: \n' + inventory + '\nВсего на руках: ' + str(count))
+    money = 'money_' + user_id
+    count_m = 0
+    for i in range(len(deepsearch(money))):
+        count_m += getvalue(deepsearch(money)[i])
+    bot.send_message(m.chat.id, 'Вы продали: \n' + inventory + '\nВсего: ' + str(count)+ 'шт.\nВсего выручки: '+str(count_m))
+    hand_cm(m)
 
+@bot.message_handler(commands=["hand"])
+def hand_cm(m, ):
+    cock = []
+    count = 0
+    try:
+        if hd[get_user_id(m)] == {}:
+            return
+    except KeyError:
+        bot.send_message(m.chat.id, 'Вы броук.\nНа руках 0 шт.')
+        return
 
+    for model in list(hd[get_user_id(m)].keys()):
+        for flavour in list(hd[get_user_id(m)][model].keys()):
+            val = hd[get_user_id(m)][model][flavour]
+            count += val
+            line = model+flavour+str(val)
+            cock.append(line)
+    bot.send_message(m.chat.id,'У вас на руках:\n'+genhands(cock) +'\n Всего на руках: '+str(count)+' шт.')
 @bot.message_handler(commands=["stats"])
 def stats_cm(m, ):
     user_id = get_user_id(m)
     word = 'hands_' + user_id
-    bot.send_message(m.chat.id, geninfo(deepsearch(word)))
+    bot.send_message(m.chat.id, gensell(deepsearch(word)))
 
 
 @bot.message_handler(commands=["storage"])
@@ -276,6 +298,12 @@ def amount(m, ):
 @bot.message_handler(commands=["sell"])
 def sell_cb(m, ):
     del_model(m)
+    hand_cm(m)
+    try:
+        if hd[get_user_id(m)] is dict:
+            return
+    except KeyError:
+        return
 
     line = list(hd[get_user_id(m)].keys())
 
@@ -296,7 +324,6 @@ def sell_cb(m, ):
     del_cache(m)
     bot.register_next_step_handler(msg, s_model)
 
-
 def s_model(m, ):
     create_cache(m)
     edit_cache(m, m.text)
@@ -306,7 +333,6 @@ def s_model(m, ):
         del_cache(m)
         del_model(m)
         return
-
     line = list(hd[get_user_id(m)].keys())
     edit_cache(m, line[int(get_cache(m)) - 1])
     edit_model(m,get_cache(m))

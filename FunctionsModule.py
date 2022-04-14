@@ -38,6 +38,14 @@ def gensell(line):
         c += str(k) + '. ' + line[i] + '\n'
     return c
 
+def genhands(line):
+    c = '\n'
+    for i in range(len(line)):
+        line[i] = line[i].replace('_', ' ')
+        k = i + 1
+        c += str(k) + '. ' + line[i] + ' шт.\n'
+    return c
+
 
 def search(line):
     importlib.reload(id)
