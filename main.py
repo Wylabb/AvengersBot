@@ -194,11 +194,12 @@ def storage_cb(m, ):
 
     line = d.get('Model')
     msg = bot.reply_to(m, 'Введите номер: \n0. Очистить словарь и хранилище от вкусов и моделей' + genlist(line) + str(
-        len(d.get('Model')) + 1) + '. Добавить новую модель\n' + str(len(d.get('Model')) + 2) + '. Добавить новый вкус')
+        len(d.get('Model')) + 1) + '. Добавить новую модель.\n' + str(len(d.get('Model')) + 2) + '. Добавить новый вкус.')
     bot.register_next_step_handler(msg, storage_model)
 
 
 def storage_model(m, ):
+    del_cache(m)
     create_cache(m)
     edit_cache(m, m.text)
     if (get_cache(m).isdigit() is False) or (int(get_cache(m)) > (len(d.get('Model'))) + 2):
@@ -206,17 +207,18 @@ def storage_model(m, ):
         del_cache(m)
         del_cache1(m)
         return
-    elif (int(get_cache(m)) == len(d.get('Model'))) + 1:
+    elif (int(get_cache(m)) == (len(d.get('Model'))) + 1):
         msg = bot.reply_to(m, 'Введите номер название новой модели.\n\nПример:\n\"Quvie_Air_\" (без кавычек)')
         bot.register_next_step_handler(msg, storage_new_model)
         return
-    elif (int(get_cache(m)) == len(d.get('Model'))) + 2:
-        bot.reply_to(m, 'Введите название нового вкуса.\n\nПример:\n\"Apple_\" (без кавычек)')
-        # bot.register_next_step_handler(msg, storage_flavours)
+    elif int(m.text) == ((len(d.get('Model'))) + 2):
+        msg = bot.reply_to(m, 'Введите название нового вкуса.\n\nПример:\n\"Apple_\" (без кавычек)')
+        bot.register_next_step_handler(msg, storage_new_flavour)
         return
-    elif int(get_cache(m)) == 0:
-        bot.reply_to(m, 'Уверены что хотите удалить все вкусы и одноразки в словаре и на складе?\n1. Да.\n 2. Нет.')
-        # bot.register_next_step_handler(msg, storage_clear)
+    elif int(m.text) == 0:
+        msg = bot.reply_to(m, 'Уверены что хотите удалить все вкусы и одноразки в словаре и на складе?\n1. Да.\n2. Нет.')
+        bot.register_next_step_handler(msg, storage_clear)
+        return
 
     try:
         if st[d.get('Model')[int(get_cache(m)) - 1]] is dict:
@@ -291,7 +293,7 @@ def storage_new_flavour(m, ):
         new_name = new_name + '_'
     if ' ' in new_name:
         new_name = new_name.replace(' ', '')
-    d['Model']['Flavour'].append(str(new_name))
+    d['Model']['Flavours'].append(str(new_name))
     msg = bot.reply_to(m,
                        'Введите название на русском для ' + new_name)
     bot.register_next_step_handler(msg, storage_new_flavour_rus)
@@ -313,13 +315,24 @@ def storage_new_flavour_rus(m, ):
     bot.reply_to(m, 'Вы успешно добавили новую модель под названием ' + new_name)
 
 
+def storage_clear(m, ):
+    global d
+    global st
+    if int(m.text) == 1:
+        d={}
+        st={}
+        del_cache(m)
+    else:
+        bot.reply_to(m, 'Команда отменена.')
+        del_cache(m)
+
+
 @bot.message_handler(commands=["take"])
 def take_cb(m, ):
     storage_cm(m)
     del_model(m)
     line = list(st.keys())
     for i in range(len(line)):
-        print(line[i])
         line[i] = line[i].replace('_', ' ')
     msg = bot.reply_to(m, 'Введите номер модели: \n' + genlist(line))
     try:
@@ -348,7 +361,6 @@ def model(m, ):
     line = list(st[get_cache(m)].keys())
     rusificate(line)
     for i in range(len(line)):
-        print(line[i])
         line[i] = line[i].replace('_', ' ')
     msg = bot.reply_to(m, 'Введите номер вкуса:\n' + genlist(line))
 
