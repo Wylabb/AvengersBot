@@ -282,7 +282,7 @@ def storage_new_model(m, ):
     json_save_d()
     bot.reply_to(m,
                  'Вы успешно добавили новую модель под названием ' + new_name)
-    # TODO бот не работает корректно без перезагрузки
+    del_cache(m)
 
 
 def storage_new_flavour(m, ):
@@ -293,7 +293,7 @@ def storage_new_flavour(m, ):
         new_name = new_name.replace(' ', '')
     d['Model']['Flavour'].append(str(new_name))
     msg = bot.reply_to(m,
-                       'Введите название на русском для ' + new_name)  # TODO бот не работает корректно без перезагрузки
+                       'Введите название на русском для ' + new_name)
     bot.register_next_step_handler(msg, storage_new_flavour_rus)
 
 
@@ -309,6 +309,7 @@ def storage_new_flavour_rus(m, ):
         new_name = new_name.replace(' ', '_')
     d['Model']['Rus_Flavours'].append(str(new_name))
     json_save_d()
+    del_cache(m)
     bot.reply_to(m, 'Вы успешно добавили новую модель под названием ' + new_name)
 
 
