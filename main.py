@@ -388,44 +388,34 @@ def flavours(m, ):
 
 
 def amount(m, ):
-    Model = get_cache(m)
-    Flavour = get_cache1(m)
-    edit_cache(m, m.text)
-    if get_cache(m).isdigit() is False or (int(get_cache(m)) == 0):
-        bot.reply_to(m, '❌Неправильное число модели\nВведите команду заново')
+    if m.text.isdigit() is False or (int(m.text) == 0):
+        bot.reply_to(m, '❌Неправильное число моделей\nВведите команду заново')
         # msg = bot.reply_to(m, 'Неправильное число, повторите')
         del_cache(m)
         del_cache1(m)
         del_model(m)
-        del st[get_cache(m)][Model][Flavour]
+        del st[m.text][get_cache(m)][get_cache1(m)]
 
-    if st[Model][Flavour] == int(get_cache(m)):
-        del st[Model][Flavour]
+    if st[get_cache(m)][get_cache1(m)] == int(m.text):
+        del st[get_cache(m)][get_cache1(m)]
         json_save_st()
-        if st[Model] == {}:
-            del st[Model]
+        if st[get_cache(m)] == {}:
+            del st[get_cache(m)]
             json_save_st()
-    elif st[Model][Flavour] < int(get_cache(m)):
-        bot.reply_to(m, 'Вы просите больше, чем есть на складе!')
+    elif st[get_cache(m)][get_cache1(m)] < int(m.text):
+        bot.reply_to(m, '❌Вы просите больше, чем есть на складе!')
         del_cache(m)
         del_cache1(m)
         del_model(m)
         return
     else:
-        st[Model][Flavour] -= int(get_cache(m))
+        st[get_cache(m)][get_cache1(m)] -= int(m.text)
         json_save_st()
 
-    hd[get_user_id(m)][Model][Flavour] = hd[get_user_id(m)][Model][Flavour] + int(get_cache(m))
+    hd[get_user_id(m)][get_cache(m)][get_cache1(m)] = hd[get_user_id(m)][get_cache(m)][get_cache1(m)] + int(m.text)
     json_save_hd()
-    # user_id_ = 'hands_' + get_user_id(m) + '_'
-    # user_id_model = user_id_ + get_model(m)
-    # if search(user_id_model) == 1:
-    #     add(user_id_model, get_cache(m))
-    # else:
-    #     create(user_id_model)
-    #     edit(user_id_model, get_cache(m))
 
-    bot.reply_to(m, 'вы взяли ' + get_cache(m) + ' одноразок на руки!')
+    bot.reply_to(m, 'вы взяли ' + m.text + ' одноразок на руки!')
 
 
 @bot.message_handler(commands=["sell"])
