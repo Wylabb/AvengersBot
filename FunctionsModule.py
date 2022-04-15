@@ -38,11 +38,12 @@ def gensell(line):
         c += str(k) + '. ' + line[i] + '\n'
     return c
 
+
 def genhands(line):
     c = '\n'
     for i in range(len(line)):
         line[i] = line[i].replace('_', ' ')
-        c += '💨️' +line[i] + ' шт.\n'
+        c += '💨️' + line[i] + ' шт.\n'
     return c
 
 
