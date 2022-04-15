@@ -1,19 +1,14 @@
-import importlib
-from importlib import reload
-
-import id
 import json
 
 from AvengersModule import get_user_id, create_cache, edit_cache, get_cache, del_cache, create_cache1, edit_cache1, \
-    get_cache1, del_cache1, create_model, edit_model, edit_model_sell, get_model, del_model, create_dict,  \
-    get_dict, del_dict
-from FunctionsModule import backup, genlist, geninfo, gensell,genhands, search, deepsearch, getvalue, create, edit, add, delite
+    get_cache1, del_cache1, create_model, edit_model, get_model, del_model, \
+    del_dict
+from FunctionsModule import backup, genlist, gensell, genhands, search, deepsearch, getvalue, create, edit, add
 from bot_password import bot
 
 global st
 global d
 global hd
-importlib.reload(id)
 
 """СЛОВАРЬ СТОРЕДЖ И ДИКТ"""
 
@@ -55,21 +50,27 @@ def rusificate(line):
     for word in range(len(line)):
         for indeh in range(len(d['Rus_Flavours'])):
             if d['Flavours'][indeh] == line[word]:
-                line[word]=d['Rus_Flavours'][indeh][1:]
+                line[word] = d['Rus_Flavours'][indeh][1:]
                 line_n = line[word].replace(")", "")
-                line[word]=line_n
+                line[word] = line_n
+
+
 def rusificate_genlist(line):
-    line=line.split()
+    line = line.split()
     for word in range(len(line)):
         for indeh in range(len(d['Rus_Flavours'])):
             if d['Flavours'][indeh][:-1] == line[word]:
                 line[word] = d['Rus_Flavours'][indeh][:-1]
-    return (' '.join(line))
+    return ' '.join(line)
+
+
 def rusificate_gencock(line):
     for word in range(len(line)):
         for indeh in range(len(d['Rus_Flavours'])):
             if d['Flavours'][indeh][:-1] in line[word]:
-                line[word] = line[word].replace(d['Flavours'][indeh][:-1],d['Rus_Flavours'][indeh][:-1])
+                line[word] = line[word].replace(d['Flavours'][indeh][:-1], d['Rus_Flavours'][indeh][:-1])
+
+
 json_load_d()
 json_load_st()
 json_load_hd()
@@ -81,13 +82,14 @@ json_load_hd()
 def start_cm(m, ):
     bot.send_message(m.chat.id, 'Отлично, добро пожаловать!')
 
+
 @bot.message_handler(commands=["info"])
 def info_cm(m, ):
     user_id = get_user_id(m)
     word = 'sell_' + user_id
-    inventory=deepsearch(word)
+    inventory = deepsearch(word)
     rusificate_gencock(inventory)
-    inventory=(genlist(inventory))
+    inventory = (genlist(inventory))
     inventory = inventory.replace("_", " ")
     inventory = inventory.replace("sell", "")
     inventory = inventory.replace(get_user_id(m), "")
@@ -98,8 +100,11 @@ def info_cm(m, ):
     count_m = 0
     for i in range(len(deepsearch(money))):
         count_m += getvalue(deepsearch(money)[i])
-    bot.send_message(m.chat.id, 'Вы продали: \n' + inventory + '\n💹 Всего: ' + str(count)+ 'шт.\n💰 Всего выручки: '+str(count_m))
+    bot.send_message(m.chat.id,
+                     'Вы продали: \n' + inventory + '\n💹 Всего: ' + str(count) + 'шт.\n💰 Всего выручки: ' + str(
+                         count_m))
     hand_cm(m)
+
 
 @bot.message_handler(commands=["hand"])
 def hand_cm(m, ):
@@ -112,42 +117,40 @@ def hand_cm(m, ):
         bot.send_message(m.chat.id, 'Вы броук.\n🙌 На руках 0 шт.')
         return
 
-    for model in list(hd[get_user_id(m)].keys()):
-        for flavour in list(hd[get_user_id(m)][model].keys()):
-            val = hd[get_user_id(m)][model][flavour]
+    for hd_model in list(hd[get_user_id(m)].keys()):
+        for flavour in list(hd[get_user_id(m)][hd_model].keys()):
+            val = hd[get_user_id(m)][hd_model][flavour]
             count += val
-            line = model+flavour+str(val)
+            line = hd_model + flavour + str(val)
             cock.append(line)
     rusificate_gencock(cock)
-    bot.send_message(m.chat.id,'У вас на руках:\n'+genhands(cock) +'\n🙌 Всего на руках: '+str(count)+' шт.')
+    bot.send_message(m.chat.id, 'У вас на руках:\n' + genhands(cock) + '\n🙌 Всего на руках: ' + str(count) + ' шт.')
+
+
 @bot.message_handler(commands=["stats"])
 def stats_cm(m, ):
     hands = 0
     storage = 0
-    h_line = ''
-    st_line = ''
 
     if hd == {}:
         h_line = 'Все ручки пусты!'
     else:
-        for id in list(hd.keys()):
-            for model in list(hd[id].keys()):
-                for flavour in list(hd[id][model].keys()):
-                    val = hd[id][model][flavour]
+        for hd_id in list(hd.keys()):
+            for st_model in list(hd[hd_id].keys()):
+                for flavour in list(hd[hd_id][st_model].keys()):
+                    val = hd[hd_id][st_model][flavour]
                     hands += val
         h_line = '🙌Всего на руках: ' + str(hands) + ' шт.\n'
-
 
     if st == {}:
         st_line = 'На складе ничего нет!'
     else:
-        for model in list(st.keys()):
-            for flavour in list(st[model].keys()):
-                val1 = st[model][flavour]
+        for st_model in list(st.keys()):
+            for flavour in list(st[st_model].keys()):
+                val1 = st[st_model][flavour]
                 storage += val1
-        st_line =  '🖊️Всего на складе: ' + str(storage) + ' шт.\n'
+        st_line = '🖊️Всего на складе: ' + str(storage) + ' шт.\n'
 
-    user_id = get_user_id(m)
     word = 'sell_'
     count = 0
     for i in range(len(deepsearch(word))):
@@ -158,7 +161,8 @@ def stats_cm(m, ):
         count_m += getvalue(deepsearch(money)[i])
     m_line = '\n💹 Всего продано: ' + str(count) + 'шт.\n\n💰 Всего выручки: ' + str(count_m)
 
-    bot.send_message(m.chat.id,st_line+'\n'+h_line+m_line)
+    bot.send_message(m.chat.id, st_line + '\n' + h_line + m_line)
+
 
 @bot.message_handler(commands=["storage"])
 def storage_cm(m, ):
@@ -172,14 +176,14 @@ def storage_cm(m, ):
         bot.send_message(m.chat.id, 'На складе ничего нет!')
         return
 
-    for model in list(st.keys()):
-        for flavour in list(st[model].keys()):
-            val = st[model][flavour]
+    for st_model in list(st.keys()):
+        for flavour in list(st[st_model].keys()):
+            val = st[st_model][flavour]
             count += val
-            line = model+flavour+str(val)
+            line = st_model + flavour + str(val)
             cock.append(line)
     rusificate_gencock(cock)
-    bot.send_message(m.chat.id,'Сейчас на складе:\n'+genhands(cock) +'\n 🖊️ Всего: '+str(count)+' шт.')
+    bot.send_message(m.chat.id, 'Сейчас на складе:\n' + genhands(cock) + '\n 🖊️ Всего: ' + str(count) + ' шт.')
 
 
 @bot.message_handler(commands=["getcache"])
@@ -262,7 +266,7 @@ def take_cb(m, ):
     line = list(st.keys())
     for i in range(len(line)):
         print(line[i])
-        line[i]=line[i].replace('_',' ')
+        line[i] = line[i].replace('_', ' ')
     msg = bot.reply_to(m, 'Введите название модели \n' + genlist(line))
     try:
         if hd[get_user_id(m)] is dict:
@@ -271,6 +275,7 @@ def take_cb(m, ):
         hd[get_user_id(m)] = {}
         json_save_hd()
     bot.register_next_step_handler(msg, model)
+
 
 def model(m, ):
     create_cache(m)
@@ -290,7 +295,7 @@ def model(m, ):
     rusificate(line)
     for i in range(len(line)):
         print(line[i])
-        line[i]=line[i].replace('_',' ')
+        line[i] = line[i].replace('_', ' ')
     msg = bot.reply_to(m, 'введите номер вкуса\n' + genlist(line))
 
     try:
@@ -333,7 +338,8 @@ def amount(m, ):
     Flavour = get_cache1(m)
     edit_cache(m, m.text)
     if get_cache(m).isdigit() is False or (int(get_cache(m)) == 0):
-        msg = bot.reply_to(m, 'Неправильное число, повторите')
+        bot.reply_to(m, 'Неправильное число, повторите')
+        # msg = bot.reply_to(m, 'Неправильное число, повторите')
         del_cache(m)
         del_cache1(m)
         del_model(m)
@@ -397,18 +403,20 @@ def sell_cb(m, ):
     del_cache(m)
     bot.register_next_step_handler(msg, s_model)
 
+
 def s_model(m, ):
     create_cache(m)
     edit_cache(m, m.text)
 
-    if (get_cache(m).isdigit() is False) or int(get_cache(m)) > len(list(hd[get_user_id(m)].keys())) or int(get_cache(m)) == 0:
+    if (get_cache(m).isdigit() is False) or int(get_cache(m)) > len(list(hd[get_user_id(m)].keys())) or int(
+            get_cache(m)) == 0:
         bot.reply_to(m, '❌Неправильный номер модели\nВведите команду заново')
         del_cache(m)
         del_model(m)
         return
     line = list(hd[get_user_id(m)].keys())
     edit_cache(m, line[int(get_cache(m)) - 1])
-    edit_model(m,get_cache(m))
+    edit_model(m, get_cache(m))
     line = list(hd[get_user_id(m)][get_cache(m)].keys())
     rusificate(line)
     msg = bot.reply_to(m, 'Введите номер вкуса:\n' + gensell(line))
@@ -418,7 +426,8 @@ def s_model(m, ):
 def s_flavours(m, ):
     create_cache1(m)
     edit_cache1(m, m.text)
-    if (get_cache1(m).isdigit() is False) or int(get_cache1(m)) > len(list(hd[get_user_id(m)][get_cache(m)].keys())) or int(get_cache1(m)) == 0:
+    if (get_cache1(m).isdigit() is False) or int(get_cache1(m)) > len(
+            list(hd[get_user_id(m)][get_cache(m)].keys())) or int(get_cache1(m)) == 0:
         bot.reply_to(m, '❌Неправильный номер вкуса\nВведите команду заново')
         del_cache(m)
         del_model(m)
@@ -450,22 +459,6 @@ def s_amount(m, ):
     else:
         hd[get_user_id(m)][Model][Flavour] -= int(get_cache(m))
         json_save_hd()
-    # user_id_ = 'hands_' + get_user_id(m) + '_'
-    # user_id_model = user_id_ + get_model(m)
-    # importlib.reload(id)
-    # if search(user_id_model) == 0:
-    #     bot.reply_to(m, 'У вас нет этой модели с таким вкусом')
-    #     return
-    #
-    # if int(getattr(id, user_id_model)) == int(get_cache(m)):
-    #     bot.reply_to(m, 'Вы  продали все одноразки этой модели с рук! Сколько вы получили?')
-    #     delite(user_id_model)
-    #     reload(id)
-    # elif int(getattr(id, user_id_model)) < int(get_cache(m)):
-    #     bot.reply_to(m, 'У вас нет столько одноразок этой модели')
-    #     return
-    # else:
-    #     add(user_id_model, -int(get_cache(m)))
     msg = bot.reply_to(m, 'Сколько вы получили с ' + get_cache(m) + ' одноразок этой модели?')
 
     user_id_sell = 'sell_' + get_user_id(m) + '_'
