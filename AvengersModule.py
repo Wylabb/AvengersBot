@@ -1,6 +1,10 @@
 def get_user_id(m, ):
     return str(m.from_user.id)
 
+def get_person_id(m, ):
+    return 'id_'+str(m.from_user.id)
+
+
 
 def cache_f(m, ):
     return 'cache_' + get_user_id(m)
@@ -114,3 +118,4 @@ def del_dict(m, ):
     if dict_f(m) in globals():
         dict_n = dict_f(m)
         exec(dict_n + " = {'Model':[],'Flavours':[]}", globals())
+

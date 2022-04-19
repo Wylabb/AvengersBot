@@ -1,7 +1,9 @@
 import json
 
+import requests
+
 from AvengersModule import get_user_id, create_cache, edit_cache, get_cache, del_cache, create_cache1, edit_cache1, \
-    get_cache1, del_cache1, create_model, edit_model, get_model, del_model, \
+    get_cache1, del_cache1, create_model, edit_model, get_model, del_model, get_person_id, \
     del_dict
 from FunctionsModule import backup, genlist, gensell, genhands, search, deepsearch, getvalue, create, edit, add
 from bot_password import bot
@@ -9,6 +11,7 @@ from bot_password import bot
 global st
 global d
 global hd
+global nm
 
 """СЛОВАРЬ СТОРЕДЖ И ДИКТ"""
 
@@ -46,6 +49,17 @@ def json_load_hd():
         hd = json.load(fp)
 
 
+def json_save_nm():
+    with open('names.json', 'w') as fp:
+        json.dump(nm, fp)
+
+
+def json_load_nm():
+    global nm
+    with open('names.json', 'r') as fp:
+        nm = json.load(fp)
+
+
 def rusificate(line):
     for word in range(len(line)):
         for indeh in range(len(d['Rus_Flavours'])):
@@ -64,6 +78,14 @@ def rusificate_genlist(line):
     return ' '.join(line)
 
 
+def rusificate_post(line):
+    if line == list:
+        ''.join(line)
+    for indeh in range(len(d['Rus_Flavours'])):
+        if d['Flavours'][indeh] == line:
+            return d['Rus_Flavours'][indeh][:-1]
+
+
 def rusificate_gencock(line):
     for word in range(len(line)):
         for indeh in range(len(d['Rus_Flavours'])):
@@ -71,16 +93,60 @@ def rusificate_gencock(line):
                 line[word] = line[word].replace(d['Flavours'][indeh][:-1], d['Rus_Flavours'][indeh][:-1])
 
 
+def post_take(m):
+    name = nm[get_person_id(m)]
+    taken_model = (list(hd[get_user_id(m)].keys())[-1])
+    taken_flavour = (list(hd[get_user_id(m)][taken_model].keys())[-1])
+    amount_nm = str(int(hd[get_user_id(m)][taken_model].get(taken_flavour)-1))
+    taken_flavour = rusificate_post(taken_flavour)
+    taken_model = str(taken_model.replace('_', ' '))
+
+    message = f'{name} взял {amount_nm} {taken_model}{taken_flavour} со склада.'
+    requests.post(
+        f'https://api.telegram.org/bot5293957385:AAGXrcOkHhcgQXGXkMzitKUcDUI4jDPcd-o/sendMessage?chat_id=-1001448891024&text={message}')
+
+    # hd[get_user_id(m)][get_cache(m)][get_cache1(m)] = hd[get_user_id(m)][get_cache(m)][get_cache1(m)] + int(m.text)
+    return
+
+def post_sell(m):
+    name = nm[get_person_id(m)]
+    sold_model = (list(hd[get_user_id(m)].keys())[-1])
+    sold_flavour = (list(hd[get_user_id(m)][sold_model].keys())[-1])
+    amount_nm = str(hd[get_user_id(m)][sold_model].get(sold_flavour))
+    sold_flavour = rusificate_post(sold_flavour)
+    sold_model = str(sold_model.replace('_', ' '))
+
+    message = f'{name} взял {amount_nm} {taken_model}{taken_flavour} со склада.'
+    requests.post(
+        f'https://api.telegram.org/bot5293957385:AAGXrcOkHhcgQXGXkMzitKUcDUI4jDPcd-o/sendMessage?chat_id=-1001448891024&text={message}')
+
+    # hd[get_user_id(m)][get_cache(m)][get_cache1(m)] = hd[get_user_id(m)][get_cache(m)][get_cache1(m)] + int(m.text)
+    return
+
+
 json_load_d()
 json_load_st()
 json_load_hd()
+json_load_nm()
 
 """Команды!!!!"""
 
 
 @bot.message_handler(commands=["start"])
 def start_cm(m, ):
-    bot.send_message(m.chat.id, 'Отлично, добро пожаловать!')
+    del_cache(m)
+    create_cache(m)
+    edit_cache(m, m.text)
+    msg = bot.send_message(m.chat.id, 'Введите свое имя.')
+    bot.register_next_step_handler(msg, set_name)
+
+
+def set_name(m):
+    del_cache(m)
+    create_cache(m)
+    edit_cache(m, m.text)
+    nm[f'{get_person_id(m)}'] = get_cache(m)
+    json_save_nm()
 
 
 @bot.message_handler(commands=["info"])
@@ -194,7 +260,8 @@ def storage_cb(m, ):
 
     line = d.get('Model')
     msg = bot.reply_to(m, 'Введите номер: \n0. Очистить словарь и хранилище от вкусов и моделей' + genlist(line) + str(
-        len(d.get('Model')) + 1) + '. Добавить новую модель.\n' + str(len(d.get('Model')) + 2) + '. Добавить новый вкус.')
+        len(d.get('Model')) + 1) + '. Добавить новую модель.\n' + str(
+        len(d.get('Model')) + 2) + '. Добавить новый вкус.')
     bot.register_next_step_handler(msg, storage_model)
 
 
@@ -207,7 +274,7 @@ def storage_model(m, ):
         del_cache(m)
         del_cache1(m)
         return
-    elif (int(get_cache(m)) == (len(d.get('Model'))) + 1):
+    elif int(get_cache(m)) == (len(d.get('Model'))) + 1:
         msg = bot.reply_to(m, 'Введите номер название новой модели.\n\nПример:\n\"Quvie_Air_\" (без кавычек)')
         bot.register_next_step_handler(msg, storage_new_model)
         return
@@ -216,7 +283,8 @@ def storage_model(m, ):
         bot.register_next_step_handler(msg, storage_new_flavour)
         return
     elif int(m.text) == 0:
-        msg = bot.reply_to(m, 'Уверены что хотите удалить все вкусы и одноразки в словаре и на складе?\n1. Да.\n2. Нет.')
+        msg = bot.reply_to(m,
+                           'Уверены что хотите удалить все вкусы и одноразки в словаре и на складе?\n1. Да.\n2. Нет.')
         bot.register_next_step_handler(msg, storage_clear)
         return
 
@@ -319,8 +387,8 @@ def storage_clear(m, ):
     global d
     global st
     if int(m.text) == 1:
-        d={}
-        st={}
+        d = {}
+        st = {}
         del_cache(m)
     else:
         bot.reply_to(m, 'Команда отменена.')
@@ -353,7 +421,7 @@ def model(m, ):
         bot.reply_to(m, '❌Неправильный номер модели\nВведите команду заново')
         del_cache(m)
         del_model(m)
-        del st[get_cache(m)]
+        del hd[get_cache(m)]
         return
 
     edit_model(m, line[int(get_cache(m)) - 1])
@@ -403,10 +471,10 @@ def amount(m, ):
     if m.text.isdigit() is False or (int(m.text) == 0):
         bot.reply_to(m, '❌Неправильное число моделей\nВведите команду заново')
         # msg = bot.reply_to(m, 'Неправильное число, повторите')
+        del st[get_cache(m)][get_cache1(m)]
         del_cache(m)
         del_cache1(m)
         del_model(m)
-        del st[m.text][get_cache(m)][get_cache1(m)]
 
     if st[get_cache(m)][get_cache1(m)] == int(m.text):
         del st[get_cache(m)][get_cache1(m)]
@@ -428,6 +496,7 @@ def amount(m, ):
     json_save_hd()
 
     bot.reply_to(m, 'вы взяли ' + m.text + ' одноразок на руки!')
+    post_take(m)
 
 
 @bot.message_handler(commands=["sell"])
@@ -441,17 +510,6 @@ def sell_cb(m, ):
         return
 
     line = list(hd[get_user_id(m)].keys())
-
-    # user_id = get_user_id(m)
-    # hands = 'hands_' + user_id
-    # info = deepsearch(hands)
-    # s = []
-    #
-    # for i in range(len(info)):
-    #     c = info[i].split(sep='_')
-    #     for j in range(2, len(c) - 1):
-    #         s.append(c[j])
-    # s = list(set(s))
 
     msg = bot.reply_to(m, 'Введите название модели: \n' + gensell(line))
 
@@ -549,8 +607,7 @@ def s_money(m, ):
         create(user_id_money_model)
         edit(user_id_money_model, get_cache(m))
         del_model(m)
-
-    bot.reply_to(m, '💰 Вы пополнили казну мстителей на ' + get_cache(m) + 'руб. Поздравляем!')
+    bot.reply_to(m, '💰 Вы пополнили казну мстителей на ' + get_cache(m) + ' руб. Поздравляем!')
 
 
 backup()
