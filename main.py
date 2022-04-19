@@ -97,7 +97,7 @@ def post_take(m):
     name = nm[get_person_id(m)]
     taken_model = (list(hd[get_user_id(m)].keys())[-1])
     taken_flavour = (list(hd[get_user_id(m)][taken_model].keys())[-1])
-    amount_nm = str(int(hd[get_user_id(m)][taken_model].get(taken_flavour)-1))
+    amount_nm = str(int(hd[get_user_id(m)][taken_model].get(taken_flavour) - 1))
     taken_flavour = rusificate_post(taken_flavour)
     taken_model = str(taken_model.replace('_', ' '))
 
@@ -107,6 +107,7 @@ def post_take(m):
 
     # hd[get_user_id(m)][get_cache(m)][get_cache1(m)] = hd[get_user_id(m)][get_cache(m)][get_cache1(m)] + int(m.text)
     return
+
 
 def post_sell(m):
     name = nm[get_person_id(m)]
@@ -397,106 +398,104 @@ def storage_clear(m, ):
 
 @bot.message_handler(commands=["take"])
 def take_cb(m, ):
-    storage_cm(m)
-    del_model(m)
-    line = list(st.keys())
-    for i in range(len(line)):
+    storage_cm(m)  # отображаем склад
+    del_model(m)  # удаляем предыдущий кэш модели
+    line = list(st.keys())  # перечисляем все модели в хранилище
+    for i in range(len(line)):  # удаляем '_' из названий моделей
         line[i] = line[i].replace('_', ' ')
-    msg = bot.reply_to(m, 'Введите номер модели: \n' + genlist(line))
+    msg = bot.reply_to(m, 'Введите номер модели: \n' + genlist(line))  # выводим список названий моделей
     try:
-        if hd[get_user_id(m)] is dict:
-            pass
+        if hd[get_user_id(m)] is dict:  # пытаемся проверить есть ли у пользователя вкладка в hands.json
+            pass  # если есть пропускаем
     except KeyError:
-        hd[get_user_id(m)] = {}
-        json_save_hd()
-    bot.register_next_step_handler(msg, model)
+        hd[get_user_id(m)] = {}  # если нет создаем новую
+        json_save_hd()  # сохраняем .json
+    bot.register_next_step_handler(msg, model)  # переходим к записи номера модели
 
 
 def model(m, ):
-    create_cache(m)
-    edit_cache(m, m.text)
-    create_model(m)
-    line = list(st.keys())
-    if (get_cache(m).isdigit() is False) or (int(get_cache(m)) > len(line)) or (int(get_cache(m)) == 0):
+    create_cache(m)  # создаем кэш для номера модели
+    edit_cache(m, m.text)  # записываем в кэш номер модели
+    line = list(st.keys())  # создаем список моделей(зачем?) TODO проверить
+    if (get_cache(m).isdigit() is False) or (int(get_cache(m)) > len(line)) or (int(get_cache(m)) == 0):  # проверяем есть ли номер модели в списке
         bot.reply_to(m, '❌Неправильный номер модели\nВведите команду заново')
-        del_cache(m)
-        del_model(m)
-        del hd[get_cache(m)]
+        del_cache(m)  # если номера нет удаляем кэш
         return
-
-    edit_model(m, line[int(get_cache(m)) - 1])
-    edit_cache(m, line[int(get_cache(m)) - 1])
-    line = list(st[get_cache(m)].keys())
-    rusificate(line)
-    for i in range(len(line)):
+    create_model(m)  # создаем кэш модели
+    edit_model(m, line[int(get_cache(m)) - 1])  # добавляем в модель название модели
+    edit_cache(m, line[int(get_cache(m)) - 1])  # добавляем в кэш название модели
+    line = list(st[get_cache(m)].keys())  # сохраняем список вкусов
+    rusificate(line)  # русифицируем список вкусов
+    for i in range(len(line)):  # заменяем '_' на пробелмы
         line[i] = line[i].replace('_', ' ')
-    msg = bot.reply_to(m, 'Введите номер вкуса:\n' + genlist(line))
+    msg = bot.reply_to(m, 'Введите номер вкуса:\n' + genlist(line))  # выводим список вкусов
 
     try:
-        if hd[get_user_id(m)][get_cache(m)] is dict:
+        if hd[get_user_id(m)][get_cache(m)] is dict:  # существует ли hd['2345432'][CuvieAir]?
             pass
     except KeyError:
-        hd[get_user_id(m)][get_cache(m)] = {}
-        json_save_hd()
+        hd[get_user_id(m)][get_cache(m)] = {}  # если нет -- создаем(зачем?) TODO проверить
+        json_save_hd()  # сохраняем в .json
 
-    bot.register_next_step_handler(msg, flavours)
+    bot.register_next_step_handler(msg, flavours)  # переходим к записи номера вкуса
 
 
 def flavours(m, ):
-    create_cache1(m)
-    edit_cache1(m, m.text)
-    line = list(st[get_cache(m)].keys())
-    if (get_cache1(m).isdigit() is False) or (int(get_cache1(m)) > len(line)) or (int(get_cache1(m)) == 0):
+    create_cache1(m)  # создаем доп. кэш
+    edit_cache1(m, m.text)  # изменяем доп. кэш на номер вкуса
+    line = list(st[get_cache(m)].keys())  # создаем список какой-то TODO проверить
+    if (get_cache1(m).isdigit() is False) or (int(get_cache1(m)) > len(line)) or (int(get_cache1(m)) == 0):  # попадаем ли доп. кэш в номер вкуса?
         bot.reply_to(m, '❌Неправильный номер вкуса\nВведите команду заново')
-        del_cache(m)
-        del_cache1(m)
-        del_model(m)
-        del st[get_cache(m)][get_cache(m)]
+        del_cache(m)  # если нет -- удаляем название модели одноразки
+        del_cache1(m)  # удаляем номер вкуса
+        del_model(m)  # удаляем модель
+        del hd[get_user_id(m)][get_cache(m)]  # удаляем hd[234432][CuvieAir] TODO а если есть кувики с другими вкусами?
         return
 
-    edit_model(m, line[int(get_cache1(m)) - 1])
-    edit_cache1(m, line[int(get_cache1(m)) - 1])
+    edit_model(m, line[int(get_cache1(m)) - 1]) # добавляем в модель вкус
+    edit_cache1(m, line[int(get_cache1(m)) - 1])  # записываем в кэш название вкуса
 
     try:
-        if hd[get_user_id(m)][get_cache(m)][get_cache1(m)] is dict:
+        if hd[get_user_id(m)][get_cache(m)][get_cache1(m)] is dict: # существует ли hd[234432][CuvieAir][Strawberry]?
             pass
     except KeyError:
-        hd[get_user_id(m)][get_cache(m)][get_cache1(m)] = 0
-        json_save_hd()
+        hd[get_user_id(m)][get_cache(m)][get_cache1(m)] = 0  # Если не существует ставим количество равным нулю TODO зачем?
+        json_save_hd()  # сохраняем .json
     msg = bot.reply_to(m, 'Введите колличество взятых одноразок:')
-    bot.register_next_step_handler(msg, amount)
+    bot.register_next_step_handler(msg, amount)  # переходим ко записи количества взятых одноразок
 
 
 def amount(m, ):
-    if m.text.isdigit() is False or (int(m.text) == 0):
+    if m.text.isdigit() is False or (int(m.text) == 0):  # проверяем правильно ли ввели количество
         bot.reply_to(m, '❌Неправильное число моделей\nВведите команду заново')
         # msg = bot.reply_to(m, 'Неправильное число, повторите')
-        del st[get_cache(m)][get_cache1(m)]
-        del_cache(m)
-        del_cache1(m)
-        del_model(m)
+        del st[get_cache(m)][get_cache1(m)]  # если нет -- удаляем из ХРАНИЛИЩА(???) st[CuvieAir][Strawberry] TODO проверить
+        del_cache(m) # удаляем название модели
+        del_cache1(m)  # удаляем название вкуса
+        del_model(m)  # удаляем модель
 
-    if st[get_cache(m)][get_cache1(m)] == int(m.text):
-        del st[get_cache(m)][get_cache1(m)]
-        json_save_st()
-        if st[get_cache(m)] == {}:
-            del st[get_cache(m)]
-            json_save_st()
-    elif st[get_cache(m)][get_cache1(m)] < int(m.text):
+    if st[get_cache(m)][get_cache1(m)] == int(m.text):  # если берем моделей столько же сколько в хранилище
+        del st[get_cache(m)][get_cache1(m)]  # удаляем st[CuvieAir][Strawberry] из хранилища
+        json_save_st()  # сохраняем .json
+        if st[get_cache(m)] == {}:  # если st[CuvieAir] пустое
+            del st[get_cache(m)]  # удаляем его
+            json_save_st()  # сохраняем .json
+    elif st[get_cache(m)][get_cache1(m)] < int(m.text):  # если берем больше чем есть на складе
         bot.reply_to(m, '❌Вы просите больше, чем есть на складе!')
-        del_cache(m)
-        del_cache1(m)
-        del_model(m)
+        del_cache(m)  # удаляем название модели
+        del_cache1(m)  # удаляем вкус модели
+        del_model(m)  # удаляем модель
         return
     else:
-        st[get_cache(m)][get_cache1(m)] -= int(m.text)
-        json_save_st()
+        st[get_cache(m)][get_cache1(m)] -= int(m.text)  # если все норм то вычитаем со склада взятых одноразки
+        json_save_st()  # сохраняем .json
 
     hd[get_user_id(m)][get_cache(m)][get_cache1(m)] = hd[get_user_id(m)][get_cache(m)][get_cache1(m)] + int(m.text)
-    json_save_hd()
+    # в строчке сверху мы добавляем к количеству уже взятых одноразок новые
+    json_save_hd()  # сохраняем .json
 
     bot.reply_to(m, 'вы взяли ' + m.text + ' одноразок на руки!')
-    post_take(m)
+    post_take(m)  # выкладываем информацию в канал TODO работает криво
 
 
 @bot.message_handler(commands=["sell"])
