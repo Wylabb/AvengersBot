@@ -54,7 +54,7 @@ def search(line):
 
 
 def deepsearch(word):
-    deeplist = [line for line in open('id.py') if word in line]
+    deeplist = [line for line in open('Data/id.py') if word in line]
     for i in range(len(deeplist)):
         deeplist[i] = deeplist[i][:-1]
     if deeplist:
@@ -74,7 +74,7 @@ def getvalue(word):
 
 
 def create(line):
-    f = open('id.py', 'a+')
+    f = open('Data/id.py', 'a+')
     line = line + ' = 0\n'
     f.write(line)
     f.close()
@@ -82,41 +82,41 @@ def create(line):
 
 
 def edit(line, newvalue):
-    f = open('id.py')
+    f = open('Data/id.py')
     data = f.read()
     oldvalue = getattr(id, line)
     data = data.replace(line + ' = ' + str(oldvalue), line + ' = ' + str(newvalue))
     f.close()
-    f = open('id.py', 'w')
+    f = open('Data/id.py', 'w')
     f.write(data)
     f.close()
 
 
 def add(line, change):
     reload(id)
-    f = open('id.py')
+    f = open('Data/id.py')
     data = f.read()
 
     oldvalue = getattr(id, line)
     newvalue = oldvalue + int(change)
     data = data.replace(line + ' = ' + str(oldvalue), line + ' = ' + str(newvalue))
     f.close()
-    f = open('id.py', 'w')
+    f = open('Data/id.py', 'w')
     f.write(data)
     f.close()
 
 
 def delite(line):
-    f = open('id.py')
+    f = open('Data/id.py')
     data = f.read()
     oldvalue = getattr(id, line)
     data = data.replace(line + ' = ' + str(oldvalue), '')
     f.close()
 
-    f = open('id.py', 'w')
+    f = open('Data/id.py', 'w')
     f.write(data)
     f.close()
-    with open('id.py', 'rw') as file:
+    with open('Data/id.py', 'rw') as file:
         for line in file:
             if not line.isspace():
                 file.write(line)

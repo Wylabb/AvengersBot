@@ -5,7 +5,7 @@ import requests
 from AvengersModule import get_user_id, create_cache, edit_cache, get_cache, del_cache, create_cache1, edit_cache1, \
     get_cache1, del_cache1, create_model, edit_model, del_model, get_person_id
 from FunctionsModule import genlist, gensell, genhands
-from bot_password import bot
+from Data.bot_password import bot
 
 global st
 global d
@@ -18,69 +18,80 @@ global se
 
 
 def json_save_d():
-    with open('dict.json', 'w') as fp:
+    with open('Data/dict.json', 'w') as fp:
         json.dump(d, fp)
 
 
 def json_load_d():
     global d
-    with open('dict.json', 'r') as fp:
+    with open('Data/dict.json', 'r') as fp:
         d = json.load(fp)
 
 
 def json_save_st():
-    with open('storage.json', 'w') as fp:
+    with open('Data/storage.json', 'w') as fp:
         json.dump(st, fp)
 
 
 def json_load_st():
     global st
-    with open('storage.json', 'r') as fp:
+    with open('Data/storage.json', 'r') as fp:
         st = json.load(fp)
 
 
 def json_save_hd():
-    with open('hands.json', 'w') as fp:
+    with open('Data/hands.json', 'w') as fp:
         json.dump(hd, fp)
 
 
 def json_load_hd():
     global hd
-    with open('hands.json', 'r') as fp:
+    with open('Data/hands.json', 'r') as fp:
         hd = json.load(fp)
 
 
 def json_save_nm():
-    with open('names.json', 'w') as fp:
+    with open('Data/names.json', 'w') as fp:
         json.dump(nm, fp)
 
 
 def json_load_nm():
     global nm
-    with open('names.json', 'r') as fp:
+    with open('Data/names.json', 'r') as fp:
         nm = json.load(fp)
 
 
 def json_save_se():
-    with open('sell.json', 'w') as fp:
+    with open('Data/sell.json', 'w') as fp:
         json.dump(se, fp)
 
 
 def json_load_se():
     global se
-    with open('sell.json', 'r') as fp:
+    with open('Data/sell.json', 'r') as fp:
         se = json.load(fp)
 
 
 def json_save_mo():
-    with open('money.json', 'w') as fp:
+    with open('Data/money.json', 'w') as fp:
         json.dump(mo, fp)
 
 
 def json_load_mo():
     global mo
-    with open('money.json', 'r') as fp:
+    with open('Data/money.json', 'r') as fp:
         mo = json.load(fp)
+
+
+def generate_data():
+    names = ['dict', 'hands', 'money', 'storage', 'names', 'sell']
+    for name in names:
+        try:
+            with open(f'Data/{name}.json', "r"):
+                pass
+        except FileNotFoundError:
+            with open(f'Data/{name}.json', "w") as f:
+                f.write('{}')
 
 
 def rusificate(line):
@@ -131,6 +142,7 @@ def post_take(m, amount_nm):
     return
 
 
+generate_data()
 json_load_d()
 json_load_st()
 json_load_hd()
