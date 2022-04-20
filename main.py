@@ -1,3 +1,4 @@
+import atexit
 import json
 
 import requests
@@ -151,12 +152,23 @@ def post_sell(m, amount_nm):
     name = nm[get_person_id(m)]
     sold_model = (list(se[get_user_id(m)].keys())[-1])
     sold_flavour = (list(se[get_user_id(m)][sold_model].keys())[-1])
-    print(sold_flavour)
     sold_flavour = rusificate_post(sold_flavour)
-    print(sold_flavour)
     sold_model = str(sold_model.replace('_', ' '))
 
     message = f'{name} продал {sold_model}{sold_flavour} с рук на {amount_nm}.'
+    requests.post(
+        f'https://api.telegram.org/bot5293957385:AAGXrcOkHhcgQXGXkMzitKUcDUI4jDPcd-o/sendMessage?chat_id'
+        f'=-1001448891024&text={message}')
+    return
+
+
+def post_storage(amount_nm):
+    sold_model = (list(st.keys())[-1])
+    sold_flavour = (list(st[sold_model].keys())[-1])
+    sold_flavour = rusificate_post(sold_flavour)
+    sold_model = str(sold_model.replace('_', ' '))
+
+    message = f'Ассортимент {sold_model}{sold_flavour} установлен на {amount_nm}.'
     requests.post(
         f'https://api.telegram.org/bot5293957385:AAGXrcOkHhcgQXGXkMzitKUcDUI4jDPcd-o/sendMessage?chat_id'
         f'=-1001448891024&text={message}')
@@ -421,7 +433,8 @@ def storage_amount(m, ):
     else:
         st[model_st][d.get('Flavours')[int(get_cache1(m)) - 1]] = int(get_cache(m))
     json_save_st()
-    bot.reply_to(m, 'Количество одноразок этой модели изменено на  ' + get_cache(m) + 'шт.')
+    bot.reply_to(m, f'Количество одноразок этой модели изменено на {get_cache(m)} шт.')
+    post_storage(get_cache(m))
 
     del_model(m)
 
@@ -435,7 +448,7 @@ def storage_new_model(m, ):
     d['Model'].append(str(new_name))
     json_save_d()
     bot.reply_to(m,
-                 'Вы успешно добавили новую модель под названием ' + new_name)
+                 f'Вы успешно добавили новую модель под названием {new_name}')
     del_cache(m)
 
 
@@ -447,7 +460,7 @@ def storage_new_flavour(m, ):
         new_name = new_name.replace(' ', '')
     d['Flavours'].append(str(new_name))
     msg = bot.reply_to(m,
-                       'Введите название на русском для ' + new_name)
+                       f'Введите название на русском для {new_name}')
     bot.register_next_step_handler(msg, storage_new_flavour_rus)
 
 
@@ -464,7 +477,7 @@ def storage_new_flavour_rus(m, ):
     d['Rus_Flavours'].append(str(new_name))
     json_save_d()
     del_cache(m)
-    bot.reply_to(m, 'Вы успешно добавили новую модель под названием ' + new_name)
+    bot.reply_to(m, f'Вы успешно добавили новую модель под названием {new_name}')
 
 
 def storage_clear(m, ):
@@ -489,7 +502,7 @@ def take_cb(m, ):
     line = list(st.keys())  # перечисляем все модели в хранилище
     for i in range(len(line)):  # удаляем '_' из названий моделей
         line[i] = line[i].replace('_', ' ')
-    msg = bot.reply_to(m, 'Введите номер модели: \n' + genlist(line))  # выводим список названий моделей
+    msg = bot.reply_to(m, f'Введите номер модели: \n{genlist(line)}')  # выводим список названий моделей
     bot.register_next_step_handler(msg, model)  # переходим к записи номера модели
 
 
@@ -509,7 +522,7 @@ def model(m, ):
     rusificate(line)  # русифицируем список вкусов
     for i in range(len(line)):  # заменяем '_' на пробелмы
         line[i] = line[i].replace('_', ' ')
-    msg = bot.reply_to(m, 'Введите номер вкуса:\n' + genlist(line))  # выводим список вкусов
+    msg = bot.reply_to(m, f'Введите номер вкуса:\n{genlist(line)}')  # выводим список вкусов
     bot.register_next_step_handler(msg, flavours)  # переходим к записи номера вкуса
 
 
@@ -598,7 +611,7 @@ def sell_cb(m, ):
     create_model(m)
     del_cache(m)
     line = list(hd[get_user_id(m)].keys())
-    msg = bot.reply_to(m, 'Введите название модели: \n' + gensell(line))
+    msg = bot.reply_to(m, f'Введите название модели: \n{gensell(line)}')
     bot.register_next_step_handler(msg, s_model)
 
 
@@ -618,7 +631,7 @@ def s_model(m, ):
     edit_model(m, get_cache(m))
     line = list(hd[get_user_id(m)][get_cache(m)].keys())
     rusificate(line)
-    msg = bot.reply_to(m, 'Введите номер вкуса:\n' + gensell(line))
+    msg = bot.reply_to(m, 'Введите номер вкуса:\n{gensell(line)}')
     bot.register_next_step_handler(msg, s_flavours)
 
 
@@ -728,5 +741,7 @@ def s_money(m, ):
 requests.post(
     f'https://api.telegram.org/bot5293957385:AAGXrcOkHhcgQXGXkMzitKUcDUI4jDPcd-o/sendMessage?chat_id'
     f'=-1001448891024&text=Бот включен')
-
+atexit.register(requests.post,
+                f'https://api.telegram.org/bot5293957385:AAGXrcOkHhcgQXGXkMzitKUcDUI4jDPcd-o/sendMessage?chat_id'
+                f'=-1001448891024&text=Бот выключен')
 bot.polling(none_stop=True, interval=0)
