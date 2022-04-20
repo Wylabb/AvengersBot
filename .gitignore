@@ -6,4 +6,6 @@ backup.py
 bot_password.py
 hands.json
 names.json
+sell.json
+money.json
 discord.xml

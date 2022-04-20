@@ -259,6 +259,11 @@ def storage_cb(m, ):
     json_load_d()
 
     line = d.get('Model')
+    if line is None:
+        msg = bot.reply_to(m,'Склад пуст')
+        bot.register_next_step_handler(msg, storage_new_model)
+        return
+
     msg = bot.reply_to(m, 'Введите номер: \n0. Очистить словарь и хранилище от вкусов и моделей' + genlist(line) + str(
         len(d.get('Model')) + 1) + '. Добавить новую модель.\n' + str(
         len(d.get('Model')) + 2) + '. Добавить новый вкус.')
@@ -361,7 +366,7 @@ def storage_new_flavour(m, ):
         new_name = new_name + '_'
     if ' ' in new_name:
         new_name = new_name.replace(' ', '')
-    d['Model']['Flavours'].append(str(new_name))
+    d['Flavours'].append(str(new_name))
     msg = bot.reply_to(m,
                        'Введите название на русском для ' + new_name)
     bot.register_next_step_handler(msg, storage_new_flavour_rus)
@@ -369,15 +374,15 @@ def storage_new_flavour(m, ):
 
 def storage_new_flavour_rus(m, ):
     new_name = m.text
+    if str(new_name)[0] != '(':
+        new_name = '(' + new_name
+    if str(new_name)[-1] != ')':
+        new_name = new_name + ')'
     if str(new_name)[-1] != '_':
         new_name = new_name + '_'
-    if str(new_name)[-2] != ')':
-        new_name = new_name + ')'
-    if str(new_name)[-2] != '(':
-        new_name = new_name + '('
     if ' ' in new_name:
         new_name = new_name.replace(' ', '_')
-    d['Model']['Rus_Flavours'].append(str(new_name))
+    d['Rus_Flavours'].append(str(new_name))
     json_save_d()
     del_cache(m)
     bot.reply_to(m, 'Вы успешно добавили новую модель под названием ' + new_name)
@@ -387,9 +392,12 @@ def storage_clear(m, ):
     global d
     global st
     if int(m.text) == 1:
-        d = {}
+        d = {"Model":[],"Flavours":[],"Rus_Flavours":[]}
         st = {}
+        json_save_st()
+        json_save_d()
         del_cache(m)
+        bot.reply_to(m, 'Вы даун.')
     else:
         bot.reply_to(m, 'Команда отменена.')
         del_cache(m)
@@ -403,19 +411,19 @@ def take_cb(m, ):
     for i in range(len(line)):  # удаляем '_' из названий моделей
         line[i] = line[i].replace('_', ' ')
     msg = bot.reply_to(m, 'Введите номер модели: \n' + genlist(line))  # выводим список названий моделей
-    try:
-        if hd[get_user_id(m)] is dict:  # пытаемся проверить есть ли у пользователя вкладка в hands.json
-            pass  # если есть пропускаем
-    except KeyError:
-        hd[get_user_id(m)] = {}  # если нет создаем новую
-        json_save_hd()  # сохраняем .json
+    # try:
+    #     if hd[get_user_id(m)] is dict:  # пытаемся проверить есть ли у пользователя вкладка в hands.json
+    #         pass  # если есть пропускаем
+    # except KeyError:
+    #     hd[get_user_id(m)] = {}  # если нет создаем новую
+    #     json_save_hd()  # сохраняем .json
     bot.register_next_step_handler(msg, model)  # переходим к записи номера модели
 
 
 def model(m, ):
     create_cache(m)  # создаем кэш для номера модели
     edit_cache(m, m.text)  # записываем в кэш номер модели
-    line = list(st.keys())  # создаем список моделей(зачем?) TODO проверить
+    line = list(st.keys())  # создаем список моделей
     if (get_cache(m).isdigit() is False) or (int(get_cache(m)) > len(line)) or (
             int(get_cache(m)) == 0):  # проверяем есть ли номер модели в списке
         bot.reply_to(m, '❌Неправильный номер модели\nВведите команду заново')
@@ -430,12 +438,12 @@ def model(m, ):
         line[i] = line[i].replace('_', ' ')
     msg = bot.reply_to(m, 'Введите номер вкуса:\n' + genlist(line))  # выводим список вкусов
 
-    try:
-        if hd[get_user_id(m)][get_cache(m)] is dict:  # существует ли hd['2345432'][CuvieAir]?
-            pass
-    except KeyError:
-        hd[get_user_id(m)][get_cache(m)] = {}  # если нет -- создаем(зачем?) TODO проверить
-        json_save_hd()  # сохраняем в .json
+    # try:
+    #     if hd[get_user_id(m)][get_cache(m)] is dict:  # существует ли hd['2345432'][CuvieAir]?
+    #         pass
+    # except KeyError:
+    #     hd[get_user_id(m)][get_cache(m)] = {}  # если нет -- создаем(зачем?) TODO проверить
+    #     json_save_hd()  # сохраняем в .json
 
     bot.register_next_step_handler(msg, flavours)  # переходим к записи номера вкуса
 
@@ -443,39 +451,58 @@ def model(m, ):
 def flavours(m, ):
     create_cache1(m)  # создаем доп. кэш
     edit_cache1(m, m.text)  # изменяем доп. кэш на номер вкуса
-    line = list(st[get_cache(m)].keys())  # создаем список какой-то TODO проверить
+    line = list(st[get_cache(m)].keys())  # создаем список со вкусами для нужной модели
     if (get_cache1(m).isdigit() is False) or (int(get_cache1(m)) > len(line)) or (
             int(get_cache1(m)) == 0):  # попадаем ли доп. кэш в номер вкуса?
         bot.reply_to(m, '❌Неправильный номер вкуса\nВведите команду заново')
         del_cache(m)  # если нет -- удаляем название модели одноразки
         del_cache1(m)  # удаляем номер вкуса
         del_model(m)  # удаляем модель
-        del hd[get_user_id(m)][get_cache(m)]  # удаляем hd[234432][CuvieAir] TODO а если есть кувики с другими вкусами?
         return
 
     edit_model(m, line[int(get_cache1(m)) - 1])  # добавляем в модель вкус
-    edit_cache1(m, line[int(get_cache1(m)) - 1])  # записываем в кэш название вкуса
+    edit_cache1(m, line[int(get_cache1(m)) - 1])  # записываем в кэш1 название вкуса
+
+    # try:
+    #     if hd[get_user_id(m)][get_cache(m)][get_cache1(m)] is dict:  # существует ли hd[234432][CuvieAir][Strawberry]?
+    #         pass
+    # except KeyError:
+    #     hd[get_user_id(m)][get_cache(m)][
+    #         get_cache1(m)] = 0  # Если не существует ставим количество равным нулю TODO зачем?
+    #     json_save_hd()  # сохраняем .json
+    msg = bot.reply_to(m, 'Введите колличество взятых одноразок:')
+    bot.register_next_step_handler(msg, amount)  # переходим ко записи количества взятых одноразок
+
+def amount(m, ):
+    if m.text.isdigit() is False or (int(m.text) == 0):  # проверяем правильно ли ввели количество
+        bot.reply_to(m, '❌Неправильное число моделей\nВведите команду заново')
+        # msg = bot.reply_to(m, 'Неправильное число, повторите')
+        del_cache(m)  # удаляем название модели
+        del_cache1(m)  # удаляем название вкуса
+        del_model(m)  # удаляем модель
+        return
+
+    try:
+        if hd[get_user_id(m)] is dict:  # пытаемся проверить есть ли у пользователя вкладка в hands.json
+            pass  # если есть пропускаем
+    except KeyError:
+        hd[get_user_id(m)] = {}  # если нет создаем новую
+        json_save_hd()  # сохраняем .json
+
+    try:
+        if hd[get_user_id(m)][get_cache(m)] is dict:  # существует ли hd['2345432'][CuvieAir]?
+            pass
+    except KeyError:
+        hd[get_user_id(m)][get_cache(m)] = {}  # если нет -- создаем(зачем?)
+        json_save_hd()  # сохраняем в .json
 
     try:
         if hd[get_user_id(m)][get_cache(m)][get_cache1(m)] is dict:  # существует ли hd[234432][CuvieAir][Strawberry]?
             pass
     except KeyError:
         hd[get_user_id(m)][get_cache(m)][
-            get_cache1(m)] = 0  # Если не существует ставим количество равным нулю TODO зачем?
+            get_cache1(m)] = 0  # Если не существует ставим количество равным нулю T
         json_save_hd()  # сохраняем .json
-    msg = bot.reply_to(m, 'Введите колличество взятых одноразок:')
-    bot.register_next_step_handler(msg, amount)  # переходим ко записи количества взятых одноразок
-
-
-def amount(m, ):
-    if m.text.isdigit() is False or (int(m.text) == 0):  # проверяем правильно ли ввели количество
-        bot.reply_to(m, '❌Неправильное число моделей\nВведите команду заново')
-        # msg = bot.reply_to(m, 'Неправильное число, повторите')
-        del st[get_cache(m)][
-            get_cache1(m)]  # если нет -- удаляем из ХРАНИЛИЩА(???) st[CuvieAir][Strawberry] TODO проверить
-        del_cache(m)  # удаляем название модели
-        del_cache1(m)  # удаляем название вкуса
-        del_model(m)  # удаляем модель
 
     if st[get_cache(m)][get_cache1(m)] == int(m.text):  # если берем моделей столько же сколько в хранилище
         del st[get_cache(m)][get_cache1(m)]  # удаляем st[CuvieAir][Strawberry] из хранилища
