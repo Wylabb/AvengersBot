@@ -725,4 +725,8 @@ def s_money(m, ):
     bot.reply_to(m, f'💰 Вы пополнили казну мстителей на {m.text} руб. Поздравляем!')
 
 
+requests.post(
+    f'https://api.telegram.org/bot5293957385:AAGXrcOkHhcgQXGXkMzitKUcDUI4jDPcd-o/sendMessage?chat_id'
+    f'=-1001448891024&text=Бот включен')
+
 bot.polling(none_stop=True, interval=0)
