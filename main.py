@@ -102,26 +102,27 @@ def post_take(m, amount_nm):
 
     message = f'{name} взял {amount_nm} {taken_model}{taken_flavour} со склада.'
     requests.post(
-        f'https://api.telegram.org/bot5293957385:AAGXrcOkHhcgQXGXkMzitKUcDUI4jDPcd-o/sendMessage?chat_id=-1001448891024&text={message}')
+        f'https://api.telegram.org/bot5293957385:AAGXrcOkHhcgQXGXkMzitKUcDUI4jDPcd-o/sendMessage?chat_id'
+        f'=-1001448891024&text={message}')
 
     # hd[get_user_id(m)][get_cache(m)][get_cache1(m)] = hd[get_user_id(m)][get_cache(m)][get_cache1(m)] + int(m.text)
     return
 
 
-def post_sell(m):
-    name = nm[get_person_id(m)]
-    sold_model = (list(hd[get_user_id(m)].keys())[-1])
-    sold_flavour = (list(hd[get_user_id(m)][sold_model].keys())[-1])
-    amount_nm = str(hd[get_user_id(m)][sold_model].get(sold_flavour))
-    sold_flavour = rusificate_post(sold_flavour)
-    sold_model = str(sold_model.replace('_', ' '))
-
-    message = f'{name} взял {amount_nm} {sold_model}{sold_flavour} со склада.'
-    requests.post(
-        f'https://api.telegram.org/bot5293957385:AAGXrcOkHhcgQXGXkMzitKUcDUI4jDPcd-o/sendMessage?chat_id=-1001448891024&text={message}')
+# def post_sell(m):
+#     name = nm[get_person_id(m)]
+#     sold_model = (list(hd[get_user_id(m)].keys())[-1])
+#     sold_flavour = (list(hd[get_user_id(m)][sold_model].keys())[-1])
+#     amount_nm = str(hd[get_user_id(m)][sold_model].get(sold_flavour))
+#     sold_flavour = rusificate_post(sold_flavour)
+#     sold_model = str(sold_model.replace('_', ' '))
+#
+#     message = f'{name} взял {amount_nm} {sold_model}{sold_flavour} со склада.'
+#     requests.post(
+#         f'https://api.telegram.org/bot5293957385:AAGXrcOkHhcgQXGXkMzitKUcDUI4jDPcd-o/sendMessage?chat_id=-1001448891024&text={message}')
 
     # hd[get_user_id(m)][get_cache(m)][get_cache1(m)] = hd[get_user_id(m)][get_cache(m)][get_cache1(m)] + int(m.text)
-    return
+    # return
 
 
 json_load_d()
