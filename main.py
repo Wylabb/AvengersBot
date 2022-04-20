@@ -3,15 +3,16 @@ import json
 import requests
 
 from AvengersModule import get_user_id, create_cache, edit_cache, get_cache, del_cache, create_cache1, edit_cache1, \
-    get_cache1, del_cache1, create_model, edit_model, get_model, del_model, get_person_id, \
-    del_dict
-from FunctionsModule import backup, genlist, gensell, genhands, search, deepsearch, getvalue, create, edit, add
+    get_cache1, del_cache1, create_model, edit_model, del_model, get_person_id
+from FunctionsModule import backup, genlist, gensell, genhands, deepsearch, getvalue
 from bot_password import bot
 
 global st
 global d
 global hd
 global nm
+global mo
+global se
 
 """СЛОВАРЬ СТОРЕДЖ И ДИКТ"""
 
@@ -58,6 +59,28 @@ def json_load_nm():
     global nm
     with open('names.json', 'r') as fp:
         nm = json.load(fp)
+
+
+def json_save_se():
+    with open('sell.json', 'w') as fp:
+        json.dump(se, fp)
+
+
+def json_load_se():
+    global se
+    with open('sell.json', 'r') as fp:
+        se = json.load(fp)
+
+
+def json_save_mo():
+    with open('money.json', 'w') as fp:
+        json.dump(mo, fp)
+
+
+def json_load_mo():
+    global mo
+    with open('money.json', 'r') as fp:
+        mo = json.load(fp)
 
 
 def rusificate(line):
@@ -121,14 +144,16 @@ def post_take(m, amount_nm):
 #     requests.post(
 #         f'https://api.telegram.org/bot5293957385:AAGXrcOkHhcgQXGXkMzitKUcDUI4jDPcd-o/sendMessage?chat_id=-1001448891024&text={message}')
 
-    # hd[get_user_id(m)][get_cache(m)][get_cache1(m)] = hd[get_user_id(m)][get_cache(m)][get_cache1(m)] + int(m.text)
-    # return
+# hd[get_user_id(m)][get_cache(m)][get_cache1(m)] = hd[get_user_id(m)][get_cache(m)][get_cache1(m)] + int(m.text)
+# return
 
 
 json_load_d()
 json_load_st()
 json_load_hd()
 json_load_nm()
+json_load_mo()
+json_load_se()
 
 """Команды!!!!"""
 
@@ -152,23 +177,39 @@ def set_name(m):
 
 @bot.message_handler(commands=["info"])
 def info_cm(m, ):
-    user_id = get_user_id(m)
-    word = 'sell_' + user_id
-    inventory = deepsearch(word)
-    rusificate_gencock(inventory)
-    inventory = (genlist(inventory))
-    inventory = inventory.replace("_", " ")
-    inventory = inventory.replace("sell", "")
-    inventory = inventory.replace(get_user_id(m), "")
+    cock = []
     count = 0
-    for i in range(len(deepsearch(word))):
-        count += getvalue(deepsearch(word)[i])
-    money = 'money_' + user_id
     count_m = 0
-    for i in range(len(deepsearch(money))):
-        count_m += getvalue(deepsearch(money)[i])
+    try:
+        if se[get_user_id(m)] == {}:
+            return
+    except KeyError:
+        bot.send_message(m.chat.id, 'Вы броук.\n🙌 Вы ничего не продавали.')
+        return
+
+    for se_model in list(se[get_user_id(m)].keys()):
+        for flavour in list(se[get_user_id(m)][se_model].keys()):
+            val = se[get_user_id(m)][se_model][flavour]
+            count += val
+            line = se_model + flavour + str(val)
+            cock.append(line)
+
+    try:
+        if mo[get_user_id(m)] == {}:
+            return
+    except KeyError:
+        bot.send_message(m.chat.id, 'Вы броук.\n🙌 Вы ничего не продавали.')
+        return
+
+
+    for mo_model in list(mo[get_user_id(m)].keys()):
+        for flavour in list(mo[get_user_id(m)][mo_model].keys()):
+            val = mo[get_user_id(m)][mo_model][flavour]
+            count_m += val
+
+    rusificate_gencock(cock)
     bot.send_message(m.chat.id,
-                     f'Вы продали: \n{inventory}\n💹 Всего: {count} шт.\n💰 Всего выручки: {count_m}')
+                     f'Вы продали: \n{genhands(cock)}\n💹 Всего: {count} шт.\n💰 Всего выручки: {count_m}')
     hand_cm(m)
 
 
@@ -217,14 +258,35 @@ def stats_cm(m, ):
                 storage += val1
         st_line = '🖊️Всего на складе: ' + str(storage) + ' шт.\n'
 
-    word = 'sell_'
     count = 0
-    for i in range(len(deepsearch(word))):
-        count += getvalue(deepsearch(word)[i])
-    money = 'money_'
     count_m = 0
-    for i in range(len(deepsearch(money))):
-        count_m += getvalue(deepsearch(money)[i])
+    try:
+        if se == {}:
+            return
+    except KeyError:
+        bot.send_message(m.chat.id, 'Мы банкоты.')
+        return
+
+    for se_id in list(se.keys()):
+        for se_model in list(se[se_id].keys()):
+            for flavour in list(se[se_id][se_model].keys()):
+                val = se[se_id][se_model][flavour]
+                count += val
+
+    try:
+        if mo == {}:
+            return
+    except KeyError:
+        bot.send_message(m.chat.id, 'Мы банкроты.')
+        return
+
+    for mo_id in list(mo.keys()):
+        for mo_model in list(mo[mo_id].keys()):
+            for flavour in list(mo[mo_id][mo_model].keys()):
+                val = mo[mo_id][mo_model][flavour]
+                count_m += val
+
+
     m_line = '\n💹 Всего продано: ' + str(count) + 'шт.\n\n💰 Всего выручки: ' + str(count_m)
 
     bot.send_message(m.chat.id, st_line + '\n' + h_line + m_line)
@@ -260,7 +322,7 @@ def storage_cb(m, ):
 
     line = d.get('Model')
     if line is None:
-        msg = bot.reply_to(m,'Склад пуст')
+        msg = bot.reply_to(m, 'Склад пуст')
         bot.register_next_step_handler(msg, storage_new_model)
         return
 
@@ -392,7 +454,7 @@ def storage_clear(m, ):
     global d
     global st
     if int(m.text) == 1:
-        d = {"Model":[],"Flavours":[],"Rus_Flavours":[]}
+        d = {"Model": [], "Flavours": [], "Rus_Flavours": []}
         st = {}
         json_save_st()
         json_save_d()
@@ -473,6 +535,7 @@ def flavours(m, ):
     msg = bot.reply_to(m, 'Введите колличество взятых одноразок:')
     bot.register_next_step_handler(msg, amount)  # переходим ко записи количества взятых одноразок
 
+
 def amount(m, ):
     if m.text.isdigit() is False or (int(m.text) == 0):  # проверяем правильно ли ввели количество
         bot.reply_to(m, '❌Неправильное число моделей\nВведите команду заново')
@@ -530,20 +593,19 @@ def amount(m, ):
 
 @bot.message_handler(commands=["sell"])
 def sell_cb(m, ):
-    del_model(m)
     hand_cm(m)
     try:
         if hd[get_user_id(m)] is dict:
-            return
+            pass
     except KeyError:
         return
 
+    create_model(m)
+    del_cache(m)
     line = list(hd[get_user_id(m)].keys())
 
     msg = bot.reply_to(m, 'Введите название модели: \n' + gensell(line))
 
-    create_model(m)
-    del_cache(m)
     bot.register_next_step_handler(msg, s_model)
 
 
@@ -557,6 +619,7 @@ def s_model(m, ):
         del_cache(m)
         del_model(m)
         return
+
     line = list(hd[get_user_id(m)].keys())
     edit_cache(m, line[int(get_cache(m)) - 1])
     edit_model(m, get_cache(m))
@@ -584,59 +647,113 @@ def s_flavours(m, ):
 
 
 def s_amount(m, ):
-    Model = get_cache(m)
-    Flavour = get_cache1(m)
-    edit_cache(m, m.text)
+    # if get_cache(m).isdigit() is False or int(get_cache(m)) == 0:
+    #     bot.reply_to(m, '❌Неправильное число\nВведите команду заново')
+    #     del_cache(m)
+    #     del_cache1(m)
+    #     return
+    #
+    # if int(get_cache(m)) > hd[get_user_id(m)][Model][Flavour]:
+    #     bot.reply_to(m, 'У вас нет столько на руках!')
+    # elif int(get_cache(m)) == hd[get_user_id(m)][Model][Flavour]:
+    #     del hd[get_user_id(m)][Model][Flavour]
+    #     json_save_hd()
+    # else:
+    #     hd[get_user_id(m)][Model][Flavour] -= int(get_cache(m))
+    #     json_save_hd()
+    # msg = bot.reply_to(m, f'Сколько вы получили с {get_cache(m)} одноразок этой модели?')
+    #
+    # # user_id_sell = 'sell_' + get_user_id(m) + '_'
+    # # user_id_sell_model = user_id_sell + get_model(m)
+    # #
+    # # if search(user_id_sell_model) == 1:
+    # #     add(user_id_sell_model, get_cache(m))
+    # # else:
+    # #     create(user_id_sell_model)
+    # #     edit(user_id_sell_model, get_cache(m))
 
-    if get_cache(m).isdigit() is False or int(get_cache(m)) == 0:
-        bot.reply_to(m, '❌Неправильное число\nВведите команду заново')
-        del_cache(m)
-        del_model(m)
+    try:
+        if se[get_user_id(m)] is dict:  # пытаемся проверить есть ли у пользователя вкладка в hands.json
+            pass  # если есть пропускаем
+    except KeyError:
+        se[get_user_id(m)] = {}  # если нет создаем новую
+        json_save_se()  # сохраняем .json
+
+    try:
+        if se[get_user_id(m)][get_cache(m)] is dict:  # существует ли hd['2345432'][CuvieAir]?
+            pass
+    except KeyError:
+        se[get_user_id(m)][get_cache(m)] = {}  # если нет -- создаем(зачем?)
+        json_save_se()  # сохраняем в .json
+
+    try:
+        if se[get_user_id(m)][get_cache(m)][get_cache1(m)] is dict:  # существует ли hd[234432][CuvieAir][Strawberry]?
+            pass
+    except KeyError:
+        se[get_user_id(m)][get_cache(m)][
+            get_cache1(m)] = 0  # Если не существует ставим количество равным нулю T
+        json_save_se()  # сохраняем .json
+
+    if hd[get_user_id(m)][get_cache(m)][get_cache1(m)] == int(
+            m.text):  # если берем моделей столько же сколько в хранилище
+        del hd[get_user_id(m)][get_cache(m)][get_cache1(m)]  # удаляем st[CuvieAir][Strawberry] из хранилища
+        json_save_hd()  # сохраняем .json
+        if hd[get_user_id(m)][get_cache(m)] == {}:  # если st[CuvieAir] пустое
+            del hd[get_user_id(m)][get_cache(m)]  # удаляем его
+            json_save_hd()  # сохраняем .json
+    elif hd[get_user_id(m)][get_cache(m)][get_cache1(m)] < int(m.text):  # если берем больше чем есть на складе
+        bot.reply_to(m, '❌Вы просите больше, чем есть на руках!')
+        del_cache(m)  # удаляем название модели
+        del_cache1(m)  # удаляем вкус модели
+        del_model(m)  # удаляем модель
         return
-
-    if int(get_cache(m)) > hd[get_user_id(m)][Model][Flavour]:
-        bot.reply_to(m, 'У вас нет столько на руках!')
-    elif int(get_cache(m)) == hd[get_user_id(m)][Model][Flavour]:
-        del hd[get_user_id(m)][Model][Flavour]
-        json_save_hd()
     else:
-        hd[get_user_id(m)][Model][Flavour] -= int(get_cache(m))
-        json_save_hd()
-    msg = bot.reply_to(m, f'Сколько вы получили с {get_cache(m)} одноразок этой модели?')
+        hd[get_user_id(m)][get_cache(m)][get_cache1(m)] -= int(
+            m.text)  # если все норм то вычитаем со склада взятых одноразки
+        json_save_hd()  # сохраняем .json
 
-    user_id_sell = 'sell_' + get_user_id(m) + '_'
-    user_id_sell_model = user_id_sell + get_model(m)
+    se[get_user_id(m)][get_cache(m)][get_cache1(m)] = se[get_user_id(m)][get_cache(m)][get_cache1(m)] + int(m.text)
+    # в строчке сверху мы добавляем к количеству уже взятых одноразок новые
+    json_save_se()
 
-    if search(user_id_sell_model) == 1:
-        add(user_id_sell_model, get_cache(m))
-    else:
-        create(user_id_sell_model)
-        edit(user_id_sell_model, get_cache(m))
-
+    msg = bot.reply_to(m, f'Сколько вы получили с {m.text} одноразок этой модели?')
     bot.register_next_step_handler(msg, s_money)
 
 
 def s_money(m, ):
-    create_cache(m)
-    edit_cache(m, m.text)
-    del_dict(m)
-    if get_cache(m).isdigit() is False:
+    if m.text.isdigit() is False:
         msg = bot.reply_to(m, '❌Неправильное число, повторите')
         del_cache(m)
         bot.register_next_step_handler(msg, s_money)
         return
 
-    user_id_money = 'money_' + get_user_id(m) + '_'
-    user_id_money_model = user_id_money + get_model(m)
+    try:
+        if mo[get_user_id(m)] is dict:  # пытаемся проверить есть ли у пользователя вкладка в hands.json
+            pass  # если есть пропускаем
+    except KeyError:
+        mo[get_user_id(m)] = {}  # если нет создаем новую
+        json_save_mo()  # сохраняем .json
 
-    if search(user_id_money_model) == 1:
-        add(user_id_money_model, get_cache(m))
-        del_model(m)
-    else:
-        create(user_id_money_model)
-        edit(user_id_money_model, get_cache(m))
-        del_model(m)
-    bot.reply_to(m, f'💰 Вы пополнили казну мстителей на {get_cache(m)} руб. Поздравляем!')
+    try:
+        if mo[get_user_id(m)][get_cache(m)] is dict:  # существует ли hd['2345432'][CuvieAir]?
+            pass
+    except KeyError:
+        mo[get_user_id(m)][get_cache(m)] = {}  # если нет -- создаем(зачем?)
+        json_save_mo()  # сохраняем в .json
+
+    try:
+        if mo[get_user_id(m)][get_cache(m)][get_cache1(m)] is dict:  # существует ли hd[234432][CuvieAir][Strawberry]?
+            pass
+    except KeyError:
+        mo[get_user_id(m)][get_cache(m)][
+            get_cache1(m)] = 0  # Если не существует ставим количество равным нулю T
+        json_save_mo()  # сохраняем .json
+
+    mo[get_user_id(m)][get_cache(m)][get_cache1(m)] = mo[get_user_id(m)][get_cache(m)][get_cache1(m)] + int(m.text)
+    # в строчке сверху мы добавляем к количеству уже взятых одноразок новые
+    json_save_mo()
+
+    bot.reply_to(m, f'💰 Вы пополнили казну мстителей на {m.text} руб. Поздравляем!')
 
 
 backup()
