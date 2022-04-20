@@ -84,7 +84,7 @@ def json_load_mo():
 
 
 def generate_data():
-    names = ['dict', 'hands', 'money', 'storage', 'names', 'sell']
+    names = ['hands', 'money', 'storage', 'names', 'sell']
     for name in names:
         try:
             with open(f'Data/{name}.json', "r"):
@@ -92,6 +92,12 @@ def generate_data():
         except FileNotFoundError:
             with open(f'Data/{name}.json', "w") as f:
                 f.write('{}')
+    try:
+        with open(f'Data/dict.json', "r"):
+            pass
+    except FileNotFoundError:
+        with open(f'Data/dict.json', "w") as f:
+            f.write('{"Model": [], "Flavours": [], "Rus_Flavours": []}')
 
 
 def rusificate(line):
@@ -138,7 +144,22 @@ def post_take(m, amount_nm):
     requests.post(
         f'https://api.telegram.org/bot5293957385:AAGXrcOkHhcgQXGXkMzitKUcDUI4jDPcd-o/sendMessage?chat_id'
         f'=-1001448891024&text={message}')
+    return
 
+
+def post_sell(m, amount_nm):
+    name = nm[get_person_id(m)]
+    sold_model = (list(se[get_user_id(m)].keys())[-1])
+    sold_flavour = (list(se[get_user_id(m)][sold_model].keys())[-1])
+    print(sold_flavour)
+    sold_flavour = rusificate_post(sold_flavour)
+    print(sold_flavour)
+    sold_model = str(sold_model.replace('_', ' '))
+
+    message = f'{name} продал {sold_model}{sold_flavour} с рук на {amount_nm}.'
+    requests.post(
+        f'https://api.telegram.org/bot5293957385:AAGXrcOkHhcgQXGXkMzitKUcDUI4jDPcd-o/sendMessage?chat_id'
+        f'=-1001448891024&text={message}')
     return
 
 
@@ -167,6 +188,10 @@ def set_name(m):
     create_cache(m)
     edit_cache(m, m.text)
     nm[f'{get_person_id(m)}'] = get_cache(m)
+    bot.send_message(m.chat.id, 'Отлично. Добро пожаловать!\nКанал с оповещениями: t.me/+r1p8ASGylO8xMzVi')
+    requests.post(
+        f'https://api.telegram.org/bot5293957385:AAGXrcOkHhcgQXGXkMzitKUcDUI4jDPcd-o/sendMessage?chat_id'
+        f'=-1001448891024&text=Новый пользователь {get_cache(m)} зарегистрировался!')
     json_save_nm()
 
 
@@ -377,7 +402,7 @@ def storage_flavours(m, ):
         st[d.get('Model')[int(get_cache(m)) - 1]][d.get('Flavours')[int(get_cache1(m)) - 1]] = 0
         json_save_st()
 
-    msg = bot.reply_to(m, 'Введите колличество одноразок на складе:')
+    msg = bot.reply_to(m, 'Введите количество одноразок на складе:')
     bot.register_next_step_handler(msg, storage_amount)
 
 
@@ -695,6 +720,7 @@ def s_money(m, ):
     mo[get_user_id(m)][get_cache(m)][get_cache1(m)] = mo[get_user_id(m)][get_cache(m)][get_cache1(m)] + int(m.text)
     # в строчке сверху мы добавляем к количеству уже взятых одноразок новые
     json_save_mo()
+    post_sell(m, m.text)
 
     bot.reply_to(m, f'💰 Вы пополнили казну мстителей на {m.text} руб. Поздравляем!')
 
