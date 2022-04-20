@@ -116,7 +116,7 @@ def post_sell(m):
     sold_flavour = rusificate_post(sold_flavour)
     sold_model = str(sold_model.replace('_', ' '))
 
-    message = f'{name} взял {amount_nm} {taken_model}{taken_flavour} со склада.'
+    message = f'{name} взял {amount_nm} {sold_model}{sold_flavour} со склада.'
     requests.post(
         f'https://api.telegram.org/bot5293957385:AAGXrcOkHhcgQXGXkMzitKUcDUI4jDPcd-o/sendMessage?chat_id=-1001448891024&text={message}')
 
@@ -167,8 +167,7 @@ def info_cm(m, ):
     for i in range(len(deepsearch(money))):
         count_m += getvalue(deepsearch(money)[i])
     bot.send_message(m.chat.id,
-                     'Вы продали: \n' + inventory + '\n💹 Всего: ' + str(count) + 'шт.\n💰 Всего выручки: ' + str(
-                         count_m))
+                     f'Вы продали: \n{inventory}\n💹 Всего: {count} шт.\n💰 Всего выручки: {count_m}')
     hand_cm(m)
 
 
@@ -497,7 +496,7 @@ def amount(m, ):
     # в строчке сверху мы добавляем к количеству уже взятых одноразок новые
     json_save_hd()  # сохраняем .json
 
-    bot.reply_to(m, 'вы взяли ' + m.text + ' одноразок на руки!')
+    bot.reply_to(m, f'вы взяли {m.text} одноразок на руки!')
     post_take(m, m.text)  # тут бот отсылает сколько одноразок взяли и постит в канал https://t.me/+r1p8ASGylO8xMzVi
 
 
@@ -575,7 +574,7 @@ def s_amount(m, ):
     else:
         hd[get_user_id(m)][Model][Flavour] -= int(get_cache(m))
         json_save_hd()
-    msg = bot.reply_to(m, 'Сколько вы получили с ' + get_cache(m) + ' одноразок этой модели?')
+    msg = bot.reply_to(m, f'Сколько вы получили с {get_cache(m)} одноразок этой модели?')
 
     user_id_sell = 'sell_' + get_user_id(m) + '_'
     user_id_sell_model = user_id_sell + get_model(m)
@@ -609,7 +608,7 @@ def s_money(m, ):
         create(user_id_money_model)
         edit(user_id_money_model, get_cache(m))
         del_model(m)
-    bot.reply_to(m, '💰 Вы пополнили казну мстителей на ' + get_cache(m) + ' руб. Поздравляем!')
+    bot.reply_to(m, f'💰 Вы пополнили казну мстителей на {get_cache(m)} руб. Поздравляем!')
 
 
 backup()
