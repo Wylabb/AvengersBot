@@ -4,7 +4,7 @@ import requests
 
 from AvengersModule import get_user_id, create_cache, edit_cache, get_cache, del_cache, create_cache1, edit_cache1, \
     get_cache1, del_cache1, create_model, edit_model, del_model, get_person_id
-from FunctionsModule import backup, genlist, gensell, genhands, deepsearch, getvalue
+from FunctionsModule import genlist, gensell, genhands
 from bot_password import bot
 
 global st
@@ -128,24 +128,7 @@ def post_take(m, amount_nm):
         f'https://api.telegram.org/bot5293957385:AAGXrcOkHhcgQXGXkMzitKUcDUI4jDPcd-o/sendMessage?chat_id'
         f'=-1001448891024&text={message}')
 
-    # hd[get_user_id(m)][get_cache(m)][get_cache1(m)] = hd[get_user_id(m)][get_cache(m)][get_cache1(m)] + int(m.text)
     return
-
-
-# def post_sell(m):
-#     name = nm[get_person_id(m)]
-#     sold_model = (list(hd[get_user_id(m)].keys())[-1])
-#     sold_flavour = (list(hd[get_user_id(m)][sold_model].keys())[-1])
-#     amount_nm = str(hd[get_user_id(m)][sold_model].get(sold_flavour))
-#     sold_flavour = rusificate_post(sold_flavour)
-#     sold_model = str(sold_model.replace('_', ' '))
-#
-#     message = f'{name} взял {amount_nm} {sold_model}{sold_flavour} со склада.'
-#     requests.post(
-#         f'https://api.telegram.org/bot5293957385:AAGXrcOkHhcgQXGXkMzitKUcDUI4jDPcd-o/sendMessage?chat_id=-1001448891024&text={message}')
-
-# hd[get_user_id(m)][get_cache(m)][get_cache1(m)] = hd[get_user_id(m)][get_cache(m)][get_cache1(m)] + int(m.text)
-# return
 
 
 json_load_d()
@@ -200,7 +183,6 @@ def info_cm(m, ):
     except KeyError:
         bot.send_message(m.chat.id, 'Вы броук.\n🙌 Вы ничего не продавали.')
         return
-
 
     for mo_model in list(mo[get_user_id(m)].keys()):
         for flavour in list(mo[get_user_id(m)][mo_model].keys()):
@@ -286,9 +268,7 @@ def stats_cm(m, ):
                 val = mo[mo_id][mo_model][flavour]
                 count_m += val
 
-
     m_line = '\n💹 Всего продано: ' + str(count) + 'шт.\n\n💰 Всего выручки: ' + str(count_m)
-
     bot.send_message(m.chat.id, st_line + '\n' + h_line + m_line)
 
 
@@ -473,12 +453,6 @@ def take_cb(m, ):
     for i in range(len(line)):  # удаляем '_' из названий моделей
         line[i] = line[i].replace('_', ' ')
     msg = bot.reply_to(m, 'Введите номер модели: \n' + genlist(line))  # выводим список названий моделей
-    # try:
-    #     if hd[get_user_id(m)] is dict:  # пытаемся проверить есть ли у пользователя вкладка в hands.json
-    #         pass  # если есть пропускаем
-    # except KeyError:
-    #     hd[get_user_id(m)] = {}  # если нет создаем новую
-    #     json_save_hd()  # сохраняем .json
     bot.register_next_step_handler(msg, model)  # переходим к записи номера модели
 
 
@@ -499,14 +473,6 @@ def model(m, ):
     for i in range(len(line)):  # заменяем '_' на пробелмы
         line[i] = line[i].replace('_', ' ')
     msg = bot.reply_to(m, 'Введите номер вкуса:\n' + genlist(line))  # выводим список вкусов
-
-    # try:
-    #     if hd[get_user_id(m)][get_cache(m)] is dict:  # существует ли hd['2345432'][CuvieAir]?
-    #         pass
-    # except KeyError:
-    #     hd[get_user_id(m)][get_cache(m)] = {}  # если нет -- создаем(зачем?) TODO проверить
-    #     json_save_hd()  # сохраняем в .json
-
     bot.register_next_step_handler(msg, flavours)  # переходим к записи номера вкуса
 
 
@@ -524,14 +490,6 @@ def flavours(m, ):
 
     edit_model(m, line[int(get_cache1(m)) - 1])  # добавляем в модель вкус
     edit_cache1(m, line[int(get_cache1(m)) - 1])  # записываем в кэш1 название вкуса
-
-    # try:
-    #     if hd[get_user_id(m)][get_cache(m)][get_cache1(m)] is dict:  # существует ли hd[234432][CuvieAir][Strawberry]?
-    #         pass
-    # except KeyError:
-    #     hd[get_user_id(m)][get_cache(m)][
-    #         get_cache1(m)] = 0  # Если не существует ставим количество равным нулю TODO зачем?
-    #     json_save_hd()  # сохраняем .json
     msg = bot.reply_to(m, 'Введите колличество взятых одноразок:')
     bot.register_next_step_handler(msg, amount)  # переходим ко записи количества взятых одноразок
 
@@ -603,9 +561,7 @@ def sell_cb(m, ):
     create_model(m)
     del_cache(m)
     line = list(hd[get_user_id(m)].keys())
-
     msg = bot.reply_to(m, 'Введите название модели: \n' + gensell(line))
-
     bot.register_next_step_handler(msg, s_model)
 
 
@@ -647,31 +603,6 @@ def s_flavours(m, ):
 
 
 def s_amount(m, ):
-    # if get_cache(m).isdigit() is False or int(get_cache(m)) == 0:
-    #     bot.reply_to(m, '❌Неправильное число\nВведите команду заново')
-    #     del_cache(m)
-    #     del_cache1(m)
-    #     return
-    #
-    # if int(get_cache(m)) > hd[get_user_id(m)][Model][Flavour]:
-    #     bot.reply_to(m, 'У вас нет столько на руках!')
-    # elif int(get_cache(m)) == hd[get_user_id(m)][Model][Flavour]:
-    #     del hd[get_user_id(m)][Model][Flavour]
-    #     json_save_hd()
-    # else:
-    #     hd[get_user_id(m)][Model][Flavour] -= int(get_cache(m))
-    #     json_save_hd()
-    # msg = bot.reply_to(m, f'Сколько вы получили с {get_cache(m)} одноразок этой модели?')
-    #
-    # # user_id_sell = 'sell_' + get_user_id(m) + '_'
-    # # user_id_sell_model = user_id_sell + get_model(m)
-    # #
-    # # if search(user_id_sell_model) == 1:
-    # #     add(user_id_sell_model, get_cache(m))
-    # # else:
-    # #     create(user_id_sell_model)
-    # #     edit(user_id_sell_model, get_cache(m))
-
     try:
         if se[get_user_id(m)] is dict:  # пытаемся проверить есть ли у пользователя вкладка в hands.json
             pass  # если есть пропускаем
@@ -756,5 +687,4 @@ def s_money(m, ):
     bot.reply_to(m, f'💰 Вы пополнили казну мстителей на {m.text} руб. Поздравляем!')
 
 
-backup()
 bot.polling(none_stop=True, interval=0)

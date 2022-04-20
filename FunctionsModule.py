@@ -1,16 +1,14 @@
 import importlib
 from importlib import reload
 
-import id
 
-
-def backup():
-    f = open('id.py')
-    data = f.read()
-    f.close()
-    f = open('backup.py', 'w')
-    f.write(data)
-    f.close()
+# def backup():
+#     f = open('id.py')
+#     data = f.read()
+#     f.close()
+#     f = open('backup.py', 'w')
+#     f.write(data)
+#     f.close()
 
 
 def genlist(line):
